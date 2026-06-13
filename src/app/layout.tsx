@@ -33,9 +33,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`scroll-smooth ${anthropicSans.variable} ${anthropicSerif.variable} ${anthropicMono.variable}`}>
       <body
-        className={`${anthropicSans.variable} ${anthropicSerif.variable} ${anthropicMono.variable} antialiased bg-parchment text-charcoal font-body selection:bg-terracotta selection:text-white`}
+        className={`antialiased bg-parchment text-charcoal font-body selection:bg-terracotta selection:text-white`}
       >
         <NavBar />
         {children}
