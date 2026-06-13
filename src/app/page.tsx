@@ -1,10 +1,8 @@
 import { Card } from "@/components/Card";
-import { AnnouncementModal } from "@/components/AnnouncementModal";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-parchment text-charcoal font-body flex flex-col items-center overflow-hidden">
-      <AnnouncementModal />
 
 
       <main className="w-full flex flex-col items-center pt-32 lg:pt-48 pb-24">

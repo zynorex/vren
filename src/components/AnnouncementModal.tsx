@@ -8,10 +8,20 @@ export function AnnouncementModal() {
 
   useEffect(() => {
     setMounted(true);
-    // Slight delay for an elegant entrance after the page loads
-    const timer = setTimeout(() => setIsOpen(true), 600);
+    
+    // Check if the user has already seen the banner
+    const hasSeen = localStorage.getItem("artha_announcement_seen");
+    if (hasSeen === "true") return;
+
+    // Show after 10 seconds of site arrival
+    const timer = setTimeout(() => setIsOpen(true), 10000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleDismiss = () => {
+    setIsOpen(false);
+    localStorage.setItem("artha_announcement_seen", "true");
+  };
 
   if (!mounted || !isOpen) return null;
 
@@ -21,7 +31,7 @@ export function AnnouncementModal() {
         
         {/* Close Button */}
         <button 
-          onClick={() => setIsOpen(false)}
+          onClick={handleDismiss}
           className="absolute top-6 right-6 text-stone hover:text-charcoal transition-colors focus:outline-none"
           aria-label="Close announcement"
         >
@@ -43,7 +53,7 @@ export function AnnouncementModal() {
           </p>
           
           <button 
-            onClick={() => setIsOpen(false)}
+            onClick={handleDismiss}
             className="w-full bg-charcoal hover:bg-[#2b2a27] text-parchment font-ui text-[15px] font-medium py-3.5 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
           >
             Acknowledge & Continue

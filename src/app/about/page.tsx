@@ -1,117 +1,144 @@
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "About ARTHA | The Payment Protocol",
-  description: "Learn why ARTHA exists and how we are rebuilding the payment layer for the global internet.",
-};
+import { useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Hero Entrance
+    gsap.fromTo(
+      ".hero-text",
+      { y: 100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.5, stagger: 0.15, ease: "power4.out", delay: 0.2 }
+    );
+
+    // Vertical Scroll Reveals
+    const revealElements = gsap.utils.toArray(".reveal-section");
+    revealElements.forEach((el: any) => {
+      gsap.fromTo(
+        el,
+        { y: 80, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%", // Triggers when the top of the element hits 85% of the viewport height
+            toggleActions: "play none none none", // Only play once
+          },
+        }
+      );
+    });
+  }, { scope: containerRef });
+
   return (
-    <div className="min-h-screen bg-parchment text-charcoal font-body flex flex-col items-center overflow-hidden">
-      <main className="w-full flex flex-col items-center pt-32 lg:pt-48 pb-32">
+    <div ref={containerRef} className="bg-parchment text-charcoal font-body overflow-x-hidden min-h-screen">
+      
+      {/* HERO SECTION */}
+      <section className="min-h-[80vh] w-full max-w-full overflow-hidden flex flex-col items-center justify-center px-6 lg:px-12 pt-32">
+        <div className="flex items-center gap-3 mb-12 opacity-0 hero-text">
+          <span className="w-8 h-[1px] bg-terracotta"></span>
+          <span className="font-ui text-xs tracking-[0.2em] uppercase text-terracotta font-semibold">
+            Our Mission
+          </span>
+          <span className="w-8 h-[1px] bg-terracotta"></span>
+        </div>
         
-        {/* Header Section */}
-        <div className="w-full max-w-[1000px] px-6 lg:px-12 flex flex-col items-center text-center animate-[fade-in-up_600ms_cubic-bezier(0.0,0.0,0.2,1)_forwards] opacity-0">
-          <div className="flex items-center gap-3 mb-10">
-            <span className="w-8 h-[1px] bg-terracotta"></span>
-            <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-semibold">
-              Our Mission
-            </span>
-            <span className="w-8 h-[1px] bg-terracotta"></span>
+        <h1 className="font-display font-medium text-[50px] md:text-[80px] lg:text-[120px] leading-[1.05] tracking-tight text-center max-w-5xl mb-8 opacity-0 hero-text break-words w-full">
+          Software is borderless.
+        </h1>
+        <h1 className="font-body italic text-[40px] md:text-[70px] lg:text-[100px] leading-[1] text-terracotta text-center opacity-0 hero-text break-words w-full">
+          Now, the revenue is too.
+        </h1>
+      </section>
+
+      {/* THE PROBLEM SECTION */}
+      <section className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 py-32 border-t border-border-subtle reveal-section opacity-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+          <div className="lg:col-span-5">
+            <h2 className="font-display text-[40px] md:text-[60px] leading-[1.1] tracking-tight">
+              The Geographic Lottery
+            </h2>
           </div>
-          
-          <h1 className="font-display font-medium text-[48px] leading-[1.05] tracking-tight text-charcoal sm:text-[64px] lg:text-[80px] text-balance mb-8">
-            Software is borderless.
-            <br />
-            Now, the revenue is too.
-          </h1>
+          <div className="lg:col-span-7 flex flex-col gap-8 text-[20px] lg:text-[24px] text-text-secondary leading-relaxed">
+            <p>
+              We observed a structural flaw in the internet economy: your ability to capture the value you create is entirely dependent on where you were born. A developer in San Francisco and a developer in Lagos can write the exact same code, yet over 60 countries are systematically excluded by traditional banking layers.
+            </p>
+            <p>
+              Traditional payment gateways like Stripe are bound by archaic banking regulations, meaning millions of developers are arbitrarily blocked from monetizing their work.
+            </p>
+            <p className="text-terracotta italic font-medium">
+              This is a failure of infrastructure, not talent.
+            </p>
+          </div>
         </div>
+      </section>
 
-        {/* Essay Section */}
-        <div className="w-full max-w-[1000px] px-6 lg:px-12 mt-16 lg:mt-24 grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 items-start animate-[fade-in-up_600ms_cubic-bezier(0.0,0.0,0.2,1)_150ms_forwards] opacity-0">
-          
-          {/* Left Column: Metadata & TOC */}
-          <div className="md:col-span-3 flex flex-col sticky top-32">
-            <div className="border-t border-border-subtle pt-4 mb-8">
-              <span className="font-ui text-[11px] uppercase tracking-[0.15em] text-text-muted font-semibold block mb-2">Established</span>
-              <span className="font-ui text-[14px] text-charcoal">June 2026</span>
-            </div>
-            <div className="border-t border-border-subtle pt-4 mb-8">
-              <span className="font-ui text-[11px] uppercase tracking-[0.15em] text-text-muted font-semibold block mb-2">Location</span>
-              <span className="font-ui text-[14px] text-charcoal">Built in India</span>
-            </div>
-            <div className="border-t border-border-subtle pt-4">
-              <span className="font-ui text-[11px] uppercase tracking-[0.15em] text-text-muted font-semibold block mb-4">Contents</span>
-              <div className="flex flex-col gap-3 font-ui text-[14px]">
-                <a href="#the-problem" className="text-text-secondary hover:text-terracotta transition-colors">The Geographic Lottery</a>
-                <a href="#the-protocol" className="text-text-secondary hover:text-terracotta transition-colors">The ARTHA Protocol</a>
-                <a href="#the-philosophy" className="text-text-secondary hover:text-terracotta transition-colors">Core Philosophy</a>
-              </div>
-            </div>
+      {/* THE PROTOCOL (VERTICAL TIMELINE) */}
+      <section className="w-full bg-charcoal text-parchment py-32 mt-16">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-12">
+          <div className="mb-24 reveal-section opacity-0">
+            <span className="font-ui text-xs tracking-widest uppercase text-stone font-semibold mb-6 block">The Mechanism</span>
+            <h2 className="font-display text-[40px] md:text-[80px] leading-[1] tracking-tight">
+              Absolute Autonomy.
+            </h2>
           </div>
 
-          {/* Right Column: The Long-form Essay */}
-          <div className="md:col-span-9 flex flex-col font-body text-[20px] lg:text-[22px] leading-[1.6] text-charcoal space-y-12">
+          <div className="flex flex-col gap-12 lg:gap-0 border-l border-[#3d3c37] ml-4 lg:ml-8">
             
-            <section id="the-problem">
-              <h2 className="font-display text-3xl lg:text-4xl mb-6">The Geographic Lottery</h2>
-              <p className="mb-6">
-                We observed a structural flaw in the internet economy: your ability to capture the value you create is entirely dependent on where you were born. A developer in San Francisco and a developer in Lagos can write the exact same quality of code, deploy to the exact same global audience, and provide the exact same utility. 
-              </p>
-              <p className="mb-6">
-                Yet, standard financial infrastructure systematically excludes over 60 countries. Traditional payment gateways like Stripe are bound by archaic banking regulations, meaning millions of developers are arbitrarily blocked from monetizing their work. They are told to rely on unsustainable workarounds or incorporate expensive shadow companies abroad.
-              </p>
-              <p className="text-terracotta font-medium italic">
-                This is a failure of infrastructure, not talent. ARTHA is the door that was always supposed to be open.
-              </p>
-            </section>
-
-            <div className="w-full h-[1px] bg-border-subtle my-4"></div>
-
-            <section id="the-protocol">
-              <h2 className="font-display text-3xl lg:text-4xl mb-6">The ARTHA Protocol</h2>
-              <p className="mb-6">
-                ARTHA stands for <span className="font-medium">Allowing Revenue To flow Honestly, Autonomously</span>. We bypass the fiat choke points entirely by building a decentralized payment layer running natively on Ethereum and Polygon.
-              </p>
-              <ul className="flex flex-col gap-6 list-none mb-6">
-                <li className="flex gap-4">
-                  <span className="font-mono text-terracotta mt-1">01.</span>
-                  <div>
-                    <strong className="font-display text-2xl block mb-2">ERC-1155 Subscription NFTs</strong>
-                    <span className="text-[18px] text-text-secondary">Instead of charging a credit card monthly, developers deploy an ARTHA smart contract. Users purchase a time-bound NFT (representing a month or year of access). Your frontend simply checks if the user holds a valid token to grant access.</span>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <span className="font-mono text-terracotta mt-1">02.</span>
-                  <div>
-                    <strong className="font-display text-2xl block mb-2">Instant Settlement</strong>
-                    <span className="text-[18px] text-text-secondary">Because the system relies on autonomous smart contracts, funds flow directly from the user to your vault. There is no waiting period, no rolling reserve, and absolutely zero percentage taken by ARTHA as a platform tax.</span>
-                  </div>
-                </li>
-              </ul>
-            </section>
-
-            <div className="w-full h-[1px] bg-border-subtle my-4"></div>
-
-            <section id="the-philosophy">
-              <h2 className="font-display text-3xl lg:text-4xl mb-6">Core Philosophy</h2>
-              <div className="bg-sand/30 border border-border-subtle p-8 rounded-lg mb-6">
-                <h3 className="font-ui text-xs tracking-[0.2em] uppercase text-terracotta font-semibold mb-4">1. Premium without permission</h3>
-                <p className="text-[18px]">
-                  Web3 tools often look like toys. ARTHA is built for serious businesses. It provides an enterprise-grade, highly polished checkout experience that your users will trust, without requiring you to seek approval from a centralized board.
-                </p>
+            {/* Step 1 */}
+            <div className="relative pl-12 lg:pl-24 pb-24 lg:pb-32 reveal-section opacity-0">
+              <div className="absolute top-0 -left-[17px] w-8 h-8 rounded-full bg-charcoal border-2 border-terracotta flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-terracotta"></div>
               </div>
-              <div className="bg-sand/30 border border-border-subtle p-8 rounded-lg">
-                <h3 className="font-ui text-xs tracking-[0.2em] uppercase text-terracotta font-semibold mb-4">2. Indian without apology</h3>
-                <p className="text-[18px]">
-                  Historically, developer tools built in the Global South have tried to mask their origins to appear "Silicon Valley standard." ARTHA reverses this. Our name is Sanskrit. Our logo is the Torana gateway of Sanchi. We believe the next generation of global infrastructure will be built here, and we wear our origin as a mark of absolute quality.
-                </p>
+              <span className="font-mono text-terracotta text-2xl mb-4 block">01</span>
+              <h3 className="font-display text-[40px] md:text-[60px] leading-[1.1] mb-6">Deploy Protocol</h3>
+              <p className="font-body text-[20px] md:text-[24px] text-stone leading-relaxed max-w-2xl">
+                Initialize an isolated smart contract on the blockchain. This contract acts as your autonomous vault and access controller. No permission. No KYC.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="relative pl-12 lg:pl-24 pb-24 lg:pb-32 reveal-section opacity-0">
+              <div className="absolute top-0 -left-[17px] w-8 h-8 rounded-full bg-charcoal border-2 border-terracotta flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-terracotta"></div>
               </div>
-            </section>
+              <span className="font-mono text-terracotta text-2xl mb-4 block">02</span>
+              <h3 className="font-display text-[40px] md:text-[60px] leading-[1.1] mb-6">The Minting Event</h3>
+              <p className="font-body text-[20px] md:text-[24px] text-stone leading-relaxed max-w-2xl">
+                Users interact with your frontend to purchase a time-bound ERC-1155 NFT. Funds are transferred into your smart contract vault instantly and securely.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative pl-12 lg:pl-24 reveal-section opacity-0">
+              <div className="absolute top-0 -left-[17px] w-8 h-8 rounded-full bg-charcoal border-2 border-terracotta flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-terracotta"></div>
+              </div>
+              <span className="font-mono text-terracotta text-2xl mb-4 block">03</span>
+              <h3 className="font-display text-[40px] md:text-[60px] leading-[1.1] mb-6">Autonomous Settlement</h3>
+              <p className="font-body text-[20px] md:text-[24px] text-stone leading-relaxed max-w-2xl">
+                Zero rolling reserves. Zero platform taxes. You possess the exclusive administrative rights to call the withdrawal function, shifting the liquidity instantly to your wallet.
+              </p>
+            </div>
 
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* FOOTER PUSH */}
+      <section className="h-[40vh] w-full flex items-center justify-center bg-parchment reveal-section opacity-0">
+        <h2 className="font-display text-[40px] lg:text-[60px] text-charcoal tracking-tight">Welcome to ARTHA.</h2>
+      </section>
+
     </div>
   );
 }

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
+import { PageReveal } from "@/components/PageReveal";
+import { AnnouncementModal } from "@/components/AnnouncementModal";
+import { Preloader } from "@/components/Preloader";
 import "./globals.css";
 
 const anthropicSans = localFont({
@@ -33,13 +36,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`scroll-smooth ${anthropicSans.variable} ${anthropicSerif.variable} ${anthropicMono.variable}`}>
+    <html lang="en" className={`scroll-smooth overflow-x-hidden ${anthropicSans.variable} ${anthropicSerif.variable} ${anthropicMono.variable}`}>
       <body
-        className={`antialiased bg-parchment text-charcoal font-body selection:bg-terracotta selection:text-white`}
+        className={`antialiased bg-parchment text-charcoal font-body selection:bg-terracotta selection:text-white overflow-x-hidden m-0 p-0`}
       >
+        <Preloader />
         <NavBar />
-        {children}
-        <Footer />
+        <PageReveal>
+          {children}
+          <Footer />
+        </PageReveal>
+        <AnnouncementModal />
       </body>
     </html>
   );
