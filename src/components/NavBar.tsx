@@ -24,16 +24,27 @@ export function NavBar() {
     >
       <div className="w-full max-w-[1440px] px-6 lg:px-8 h-[68px] flex items-center justify-between">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 group cursor-pointer shrink-0">
-          <div className="relative w-8 h-8 flex items-center justify-center">
+        <Link href="/" className="flex items-center group cursor-pointer shrink-0">
+          <div className="relative w-8 h-8 flex items-center justify-center z-10">
             <div className="absolute top-1 left-1 w-1.5 h-6 bg-charcoal" />
             <div className="absolute top-1 right-1 w-1.5 h-6 bg-charcoal" />
             <div className="absolute top-1 left-0 w-8 h-1.5 bg-terracotta" />
             <div className="absolute top-[8px] left-[14px] w-[3px] h-[10px] bg-charcoal" />
           </div>
-          <span className="font-display font-semibold tracking-wide leading-none text-xl text-charcoal">
-            ARTHA
-          </span>
+          
+          <div 
+            className={`overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center ${
+              scrolled ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+            }`}
+          >
+            <span 
+              className={`pl-2 font-display font-semibold tracking-wide leading-none text-xl text-charcoal transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                scrolled ? "-translate-x-full" : "translate-x-0"
+              }`}
+            >
+              ARTHA
+            </span>
+          </div>
         </Link>
 
         {/* Right Section: Links + Split Button */}
