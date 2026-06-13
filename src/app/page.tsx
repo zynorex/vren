@@ -1,8 +1,10 @@
-"use client";
+import { Card } from "@/components/Card";
+import { AnnouncementModal } from "@/components/AnnouncementModal";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-parchment text-charcoal font-body flex flex-col items-center overflow-hidden">
+      <AnnouncementModal />
 
 
       <main className="w-full flex flex-col items-center pt-32 lg:pt-48 pb-24">
@@ -143,6 +145,110 @@ export default function Home() {
                   </code>
                 </pre>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* The Problem Section */}
+        <div className="w-full max-w-[1440px] px-6 lg:px-12 mt-32 lg:mt-48">
+          <div className="border-t border-border-subtle pt-8 pb-16 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+            <div className="lg:col-span-5">
+              <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.1] text-charcoal tracking-tight">
+                The geographic lottery of global finance.
+              </h2>
+            </div>
+            <div className="lg:col-span-7 flex flex-col gap-10 lg:pt-4">
+              <p className="font-body text-[20px] lg:text-[24px] text-text-secondary leading-relaxed">
+                We observed a structural flaw in the internet economy: your ability to capture the value you create is entirely dependent on where you were born. Standard financial infrastructure excludes over 60 countries, arbitrarily blocking millions of developers from monetizing their work.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 border-t border-border-subtle pt-10">
+                <div className="flex flex-col">
+                  <span className="font-display text-4xl text-charcoal mb-4">60+</span>
+                  <span className="font-ui font-medium text-charcoal mb-2">Countries Excluded</span>
+                  <p className="font-body text-[16px] text-text-secondary leading-relaxed">By major traditional payment gateways due to archaic banking regulations.</p>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-display text-4xl text-charcoal mb-4">$0</span>
+                  <span className="font-ui font-medium text-charcoal mb-2">Platform Tax</span>
+                  <p className="font-body text-[16px] text-text-secondary leading-relaxed">ARTHA takes exactly zero percentage of your hard-earned revenue.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Updates / Editorial Cards Section */}
+        <div className="w-full max-w-[1440px] px-6 lg:px-12 mt-32 lg:mt-40">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div>
+              <span className="font-ui text-xs tracking-widest uppercase text-terracotta font-semibold mb-6 block">Dispatch</span>
+              <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.1] text-charcoal tracking-tight">
+                Latest updates
+              </h2>
+            </div>
+            <a href="#" className="font-ui text-[15px] text-charcoal hover:text-terracotta transition-colors flex items-center gap-2 group pb-2">
+              View all dispatches
+              <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card 
+              eyebrow="Architecture"
+              title="State Machine Consensus in Web3 Subscriptions"
+              description="A deep dive into how ARTHA utilizes multi-signature wallet verification to prevent replay attacks and ensure instantaneous global settlements."
+              date="Jun 12, 2026"
+              href="#"
+            />
+            <Card 
+              eyebrow="Release"
+              title="ARTHA Protocol v1.0 Mainnet Launch"
+              description="After three rigorous security audits, the core ERC-1155 protocol is officially live on Ethereum and Polygon mainnets."
+              date="Jun 05, 2026"
+              href="#"
+            />
+            <Card 
+              eyebrow="Community"
+              title="Unlocking the Global South for Builders"
+              description="Why traditional fiat gateways systematically exclude emerging markets, and how decentralized infrastructure forces an open door."
+              date="May 28, 2026"
+              href="#"
+            />
+          </div>
+        </div>
+
+        {/* Use Cases Section */}
+        <div className="w-full bg-charcoal text-parchment py-32 lg:py-48 mt-32 lg:mt-48">
+          <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div className="mb-20">
+              <span className="font-ui text-xs tracking-widest uppercase text-stone font-semibold mb-6 block">Capabilities</span>
+              <h2 className="font-display text-[40px] lg:text-[64px] leading-tight tracking-tight max-w-4xl text-parchment">
+                What can you build with ARTHA?
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+              {[
+                {
+                  title: "SaaS Subscriptions",
+                  desc: "Deploy a recurring payment smart contract that grants users a time-bound NFT. Connect it to your Next.js app to gate premium routes.",
+                },
+                {
+                  title: "API Gateways",
+                  desc: "Monetize your machine learning models or data APIs. Users purchase compute credits directly on-chain, unlocking API keys instantly.",
+                },
+                {
+                  title: "Creator Communities",
+                  desc: "Bypass Patreon and Substack. Launch a private Discord or content vault where access is strictly verified by wallet signatures.",
+                },
+              ].map((useCase, idx) => (
+                <div key={idx} className="flex flex-col border-t border-[#3d3c37] pt-8 group">
+                  <h3 className="font-display text-2xl lg:text-3xl mb-4 text-parchment">{useCase.title}</h3>
+                  <p className="font-body text-lg text-stone leading-relaxed">
+                    {useCase.desc}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
