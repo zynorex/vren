@@ -1,1 +1,84 @@
 @import "tailwindcss";
+
+@theme {
+  --color-charcoal: #191918;
+  --color-parchment: #faf9f5;
+  --color-stone: #b0aea5;
+  --color-sand: #e8e6dc;
+  --color-cream: #f0ece0;
+  --color-dim: #6b6960;
+  
+  --color-terracotta: #d97757;
+  --color-terracotta-dark: #c96442;
+  --color-sage: #788c5d;
+  --color-sky: #6a9bcc;
+  --color-warm-gold: #c9a07c;
+
+  --color-bg-primary: var(--color-parchment);
+  --color-bg-surface: #ffffff;
+  --color-bg-raised: var(--color-cream);
+  --color-border-subtle: var(--color-sand);
+  
+  --color-text-primary: var(--color-charcoal);
+  --color-text-secondary: var(--color-dim);
+  --color-text-muted: var(--color-stone);
+
+  --font-display: var(--font-anthropic-sans), sans-serif;
+  --font-body: var(--font-anthropic-serif), serif;
+  --font-ui: var(--font-anthropic-sans), sans-serif;
+  --font-mono: var(--font-anthropic-mono), monospace;
+
+  --radius-micro: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-xs: 0 1px 2px rgba(25, 25, 24, 0.06);
+  --shadow-sm: 0 2px 4px rgba(25, 25, 24, 0.06);
+  --shadow-md: 0 4px 12px rgba(25, 25, 24, 0.08);
+  --shadow-lg: 0 8px 24px rgba(25, 25, 24, 0.12);
+  --shadow-xl: 0 16px 48px rgba(25, 25, 24, 0.16);
+
+  --animate-fade-in-up: fade-in-up 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+@layer base {
+  :root {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-text-primary);
+  }
+  
+  /* Selection color */
+  ::selection {
+    background-color: var(--color-terracotta);
+    color: #ffffff;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .glass-nav {
+    background: rgba(250, 249, 245, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+}
