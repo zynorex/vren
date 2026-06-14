@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
+import type { PrismaClient } from "@prisma/client";
 
 // The secret key provided by Alchemy Custom Webhooks (or your relayer)
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
         throw new Error(`App with contractId ${appId} not found in database`);
       }
 
-      const plan = app.plans.find((p) => p.onchainIdx === Number(planId));
+      const plan = app.plans.find((p: { onchainIdx: number; id: string }) => p.onchainIdx === Number(planId));
       if (!plan) {
         throw new Error(`Plan ID ${planId} not found for App ${appId}`);
       }
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
       const expiryDate = new Date(Number(expiry) * 1000);
 
       // Upsert the Subscriber record
-      await db.$transaction(async (prisma) => {
+      await db.$transaction(async (prisma: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
         await prisma.subscriber.upsert({
           where: {
             appId_wallet: {
