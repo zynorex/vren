@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function NavBar() {
   const [scrolled, setScrolled] = useState(false);
@@ -26,10 +27,7 @@ export function NavBar() {
         {/* Brand */}
         <Link href="/" className="flex items-center group cursor-pointer shrink-0">
           <div className="relative w-8 h-8 flex items-center justify-center z-10">
-            <div className="absolute top-1 left-1 w-1.5 h-6 bg-charcoal" />
-            <div className="absolute top-1 right-1 w-1.5 h-6 bg-charcoal" />
-            <div className="absolute top-1 left-0 w-8 h-1.5 bg-terracotta" />
-            <div className="absolute top-[8px] left-[14px] w-[3px] h-[10px] bg-charcoal" />
+            <Image src="/logo.png" alt="VREN Logo" width={40} height={40} className="object-contain" />
           </div>
           
           <div 
@@ -42,7 +40,7 @@ export function NavBar() {
                 scrolled ? "-translate-x-full" : "translate-x-0"
               }`}
             >
-              ARTHA
+              VREN
             </span>
           </div>
         </Link>
@@ -52,21 +50,38 @@ export function NavBar() {
           
           {/* Navigation Links (Serif, 20px, Right-aligned) */}
           <div className="hidden lg:flex items-center text-charcoal font-body text-[20px]">
-            <Link href="#" className="px-[12px] py-[22px] hover:text-terracotta transition-colors">
-              Developers
+            <Link href="/how-it-works" className="px-[12px] py-[22px] hover:text-terracotta transition-colors">
+              How It Works
             </Link>
-            <Link href="#" className="px-[12px] py-[22px] hover:text-terracotta transition-colors">
-              Pricing
+            <Link href="/about" className="px-[12px] py-[22px] hover:text-terracotta transition-colors">
+              About
             </Link>
+            
             <div className="group relative px-[12px] py-[22px] cursor-pointer flex items-center gap-1.5 hover:text-terracotta transition-colors">
               <span>Resources</span>
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="mt-1 transition-transform group-hover:rotate-180">
                 <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
+
+              {/* Dropdown Menu (CSS Driven) */}
+              <div className="absolute top-full right-0 w-48 bg-white border border-border-subtle rounded-xl shadow-[0_16px_40px_rgba(25,25,24,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 flex flex-col py-2 z-50">
+                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                  Developers
+                </Link>
+                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                  Pricing
+                </Link>
+                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                  Documentation
+                </Link>
+                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                  Blog
+                </Link>
+                <Link href="/changelog" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                  Changelog
+                </Link>
+              </div>
             </div>
-            <Link href="#" className="px-[12px] py-[22px] hover:text-terracotta transition-colors">
-              Company
-            </Link>
           </div>
 
           <div className="w-4 hidden lg:block"></div>
@@ -74,7 +89,7 @@ export function NavBar() {
           {/* Split CTA Button */}
           <div className="flex items-center h-10 shadow-sm transition-transform hover:-translate-y-[1px] hover:shadow-md cursor-pointer group">
             <div className="bg-charcoal text-parchment font-ui text-[16px] font-medium h-full flex items-center px-4 rounded-l-lg border-r border-[#3d3c37] group-hover:bg-[#2b2a27] transition-colors">
-              Try ARTHA
+              Try VREN
             </div>
             <div className="bg-charcoal text-parchment h-full flex items-center justify-center px-3 rounded-r-lg group-hover:bg-[#2b2a27] transition-colors">
               <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -51,9 +51,17 @@
     from { opacity: 0; }
     to { opacity: 1; }
   }
+  @keyframes progress-line {
+    0% { transform: scaleX(0); }
+    40% { transform: scaleX(0.4); }
+    100% { transform: scaleX(1); }
+  }
 }
 
 @layer base {
+  html, body {
+    overflow-x: hidden;
+  }
   :root {
     background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
