@@ -21,9 +21,65 @@ const anthropicMono = localFont({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vren.vercel.app";
+
 export const metadata: Metadata = {
-  title: "VREN | Your revenue. Your terms.",
-  description: "The payment layer for builders Stripe said no to.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "VREN | Your revenue. Your terms.",
+    template: "%s | VREN Protocol",
+  },
+  description:
+    "VREN is the permissionless payment infrastructure layer for builders the traditional financial system decided to exclude. Deploy subscription smart contracts and accept USDC from anywhere in the world.",
+  keywords: [
+    "VREN",
+    "blockchain payments",
+    "web3 subscriptions",
+    "ERC-1155",
+    "Polygon",
+    "permissionless payments",
+    "smart contract subscriptions",
+    "USDC payments",
+    "decentralized finance",
+    "developer SDK",
+  ],
+  authors: [{ name: "VREN Protocol" }],
+  creator: "VREN Protocol",
+  publisher: "VREN Protocol",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: "VREN Protocol",
+    title: "VREN | Your revenue. Your terms.",
+    description:
+      "The borderless payment infrastructure for the internet economy. Deploy subscription smart contracts on Polygon and accept USDC from anywhere in the world.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "VREN Protocol — Your revenue. Your terms.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VREN | Your revenue. Your terms.",
+    description:
+      "The borderless payment infrastructure for the internet economy. Deploy subscription smart contracts on Polygon and accept USDC from anywhere in the world.",
+    images: ["/og-image.png"],
+    creator: "@vrenprotocol",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
