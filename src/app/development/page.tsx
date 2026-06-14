@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Image from "next/image";
+import Link from "next/link";
 
 const TARGET_DATE = new Date("2026-09-19T00:00:00Z").getTime();
 
@@ -142,18 +143,30 @@ export default function DevelopmentPage() {
       </div>
 
       {/* ── BOTTOM: CTA + spin ────────────────────────────────────────── */}
-      <div className="anim-footer relative z-10 flex flex-col items-center gap-5">
-        <button className="group relative flex items-center gap-2.5 px-7 py-3 border border-[#2e2e2c] rounded-full overflow-hidden hover:border-[#F5F0E8]/30 transition-colors duration-500">
-          <div className="absolute inset-0 bg-[#F5F0E8] translate-y-[102%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
-          <span className="relative z-10 font-ui text-[12px] tracking-[0.15em] uppercase text-[#888882] group-hover:text-[#111110] transition-colors duration-300">
-            Read Developer Docs
-          </span>
-          <svg className="relative z-10 text-[#888882] group-hover:text-[#111110] transition-colors duration-300" width="11" height="11" viewBox="0 0 12 12" fill="none">
-            <path d="M1 11L11 1M11 1H3.5M11 1V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+      <div className="anim-footer relative z-10 flex flex-col items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Link href="/dev-docs" className="group relative flex items-center gap-2.5 px-7 py-3 border border-[#2e2e2c] rounded-full overflow-hidden hover:border-[#F5F0E8]/30 transition-colors duration-500">
+            <div className="absolute inset-0 bg-[#F5F0E8] translate-y-[102%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+            <span className="relative z-10 font-ui text-[12px] tracking-[0.15em] uppercase text-[#888882] group-hover:text-[#111110] transition-colors duration-300">
+              Read Developer Docs
+            </span>
+            <svg className="relative z-10 text-[#888882] group-hover:text-[#111110] transition-colors duration-300" width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M1 11L11 1M11 1H3.5M11 1V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
 
-        <svg className="spin-slow text-terracotta opacity-25" width="32" height="32" viewBox="0 0 40 40" fill="none">
+          <Link
+            href="/home"
+            className="font-ui text-[12px] tracking-[0.15em] uppercase text-[#555550] hover:text-[#888882] transition-colors duration-300 flex items-center gap-1.5"
+          >
+            Visit Site
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M1 11L11 1M11 1H3.5M11 1V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+
+        <svg className="spin-slow text-terracotta opacity-25 mt-1" width="32" height="32" viewBox="0 0 40 40" fill="none">
           <circle cx="20" cy="20" r="19" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
           <circle cx="20" cy="20" r="10" stroke="currentColor" strokeWidth="1" />
           <path d="M20 0V40M0 20H40" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.6" />
