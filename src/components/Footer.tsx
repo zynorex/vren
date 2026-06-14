@@ -102,6 +102,7 @@ export function Footer() {
               <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">Company</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
                 <Link href="/about" className="hover:text-parchment transition-colors">About ARTHA</Link>
+                <Link href="/changelog" className="hover:text-parchment transition-colors">Changelog</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Careers</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">News</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Contact</Link>
