@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Supabase PostgreSQL connection string (Transaction connection pooler string)
+  url      = env("DATABASE_URL")
+  // Supabase direct connection string (For migrations)
+  directUrl = env("DIRECT_URL")
+}
+
+/// The B2B developer using VREN to monetize their protocol.
+model Developer {
+  id        String   @id @default(cuid())
+  wallet    String   @unique // The primary EVM address used to sign in
+  email     String?  @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  apps App[]
+
+  @@index([wallet])
+}
+
+/// Represents a registered application / protocol in the VrenRegistry.
+model App {
+  id           String   @id @default(cuid())
+  contractId   String   @unique // bytes32 appId from VrenRegistry.sol
+  name         String
+  payoutWallet String   // The wallet receiving USDC fees
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  developerId String
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  plans       Plan[]
+  subscribers Subscriber[]
+
+  @@index([contractId])
+  @@index([developerId])
+}
+
+/// Represents an available subscription tier for an App.
+model Plan {
+  id         String   @id @default(cuid())
+  onchainIdx Int      // The integer planId in the VrenSubscription contract
+  name       String
+  price      String   // Stored as string to handle BigInt precision (USDC amounts)
+  duration   Int      // Duration in seconds
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  appId String
+  app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  subscribers Subscriber[]
+
+  @@unique([appId, onchainIdx])
+}
+
+/// Off-chain cache of end-users who have minted a subscription NFT.
+model Subscriber {
+  id        String   @id @default(cuid())
+  wallet    String   // End-user EVM address
+  tokenId   String?  @unique // The ERC-1155 NFT token ID (if minted)
+  expiry    DateTime // The absolute expiry date of the subscription
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appId String
+  app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  @@unique([appId, wallet])
+  @@index([wallet])
+}
+
+/// Idempotency table for Webhook Reliability. Prevents processing the same transaction twice.
+model WebhookEvent {
+  id              String   @id @default(cuid())
+  transactionHash String   @unique // The tx hash from Polygon
+  eventType       String   // e.g., 'Subscribed', 'PlanCreated'
+  processedAt     DateTime @default(now())
+
+  @@index([transactionHash])
+}
