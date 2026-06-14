@@ -1,8 +1,8 @@
-# ARTHA
+# VREN
 
 ### Allowing Revenue To flow Honestly, Autonomously
 
-ARTHA is a decentralized payment layer designed for developers locked out of traditional financial infrastructure. Built with an elite editorial aesthetic, it provides a premium gateway for creators in regions unsupported by standard payment processors. Premium without permission. Indian without apology.
+VREN is a decentralized payment layer designed for developers locked out of traditional financial infrastructure. Built with an elite editorial aesthetic, it provides a premium gateway for creators in regions unsupported by standard payment processors. Premium without permission. Indian without apology.
 
 ## Core Philosophy
 
@@ -13,7 +13,7 @@ Every design and architectural decision flows from three principles:
 
 ## Architecture
 
-ARTHA replaces closed financial networks with a decentralized smart contract architecture. You deploy an ERC1155 subscription NFT contract. Your users mint access. You withdraw revenue directly to your wallet. There is no middleman and no geographic restriction.
+VREN replaces closed financial networks with a decentralized smart contract architecture. You deploy an ERC1155 subscription NFT contract. Your users mint access. You withdraw revenue directly to your wallet. There is no middleman and no geographic restriction.
 
 ## Key Features
 
@@ -47,7 +47,7 @@ To run the local development server:
 
 ## Design System
 
-The application strictly adheres to the ARTHA Design Bible, drawing structural inspiration from high end print magazines. It utilizes an asymmetric split grid, immense typographic contrast, and restrained motion.
+The application strictly adheres to the VREN Design Bible, drawing structural inspiration from high end print magazines. It utilizes an asymmetric split grid, immense typographic contrast, and restrained motion.
 
 ## Origin
 

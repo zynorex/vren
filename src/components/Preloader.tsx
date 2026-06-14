@@ -8,7 +8,7 @@ export function Preloader() {
 
   useEffect(() => {
     // Only show the preloader once per session to avoid annoying the user
-    if (sessionStorage.getItem("artha_preloader_seen")) {
+    if (sessionStorage.getItem("vren_preloader_seen")) {
       setLoadingState(2);
       return;
     }
@@ -17,7 +17,7 @@ export function Preloader() {
     const timer1 = setTimeout(() => setLoadingState(1), 1600); // Trigger the upward slide
     const timer2 = setTimeout(() => {
       setLoadingState(2);
-      sessionStorage.setItem("artha_preloader_seen", "true");
+      sessionStorage.setItem("vren_preloader_seen", "true");
     }, 2800); // Fully remove from DOM after slide finishes
 
     return () => {
@@ -44,7 +44,7 @@ export function Preloader() {
             <div className="absolute top-[8px] left-[14px] w-[3px] h-[10px] bg-parchment" />
           </div>
           <span className="font-display font-medium tracking-[0.2em] leading-none text-3xl">
-            ARTHA
+            VREN
           </span>
         </div>
         

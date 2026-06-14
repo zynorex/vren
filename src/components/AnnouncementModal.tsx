@@ -10,7 +10,7 @@ export function AnnouncementModal() {
     setMounted(true);
     
     // Check if the user has already seen the banner
-    const hasSeen = localStorage.getItem("artha_announcement_seen");
+    const hasSeen = localStorage.getItem("vren_announcement_seen");
     if (hasSeen === "true") return;
 
     // Show after 10 seconds of site arrival
@@ -20,7 +20,7 @@ export function AnnouncementModal() {
 
   const handleDismiss = () => {
     setIsOpen(false);
-    localStorage.setItem("artha_announcement_seen", "true");
+    localStorage.setItem("vren_announcement_seen", "true");
   };
 
   if (!mounted || !isOpen) return null;
@@ -49,7 +49,7 @@ export function AnnouncementModal() {
           </h2>
           
           <p className="font-body text-[18px] lg:text-[20px] text-text-secondary leading-[1.6] mb-10 text-balance">
-            The ARTHA Protocol is currently undergoing core engineering and rigorous smart contract security audits. Mainnet deployment is scheduled for Q3 2026.
+            The VREN Protocol is currently undergoing core engineering and rigorous smart contract security audits. Mainnet deployment is scheduled for Q3 2026.
           </p>
           
           <button 

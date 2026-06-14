@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function NavBar() {
   const [scrolled, setScrolled] = useState(false);
@@ -26,10 +27,7 @@ export function NavBar() {
         {/* Brand */}
         <Link href="/" className="flex items-center group cursor-pointer shrink-0">
           <div className="relative w-8 h-8 flex items-center justify-center z-10">
-            <div className="absolute top-1 left-1 w-1.5 h-6 bg-charcoal" />
-            <div className="absolute top-1 right-1 w-1.5 h-6 bg-charcoal" />
-            <div className="absolute top-1 left-0 w-8 h-1.5 bg-terracotta" />
-            <div className="absolute top-[8px] left-[14px] w-[3px] h-[10px] bg-charcoal" />
+            <Image src="/logo.png" alt="VREN Logo" width={40} height={40} className="object-contain" />
           </div>
           
           <div 
@@ -42,7 +40,7 @@ export function NavBar() {
                 scrolled ? "-translate-x-full" : "translate-x-0"
               }`}
             >
-              ARTHA
+              VREN
             </span>
           </div>
         </Link>
@@ -79,6 +77,9 @@ export function NavBar() {
                 <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
                   Blog
                 </Link>
+                <Link href="/changelog" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                  Changelog
+                </Link>
               </div>
             </div>
           </div>
@@ -88,7 +89,7 @@ export function NavBar() {
           {/* Split CTA Button */}
           <div className="flex items-center h-10 shadow-sm transition-transform hover:-translate-y-[1px] hover:shadow-md cursor-pointer group">
             <div className="bg-charcoal text-parchment font-ui text-[16px] font-medium h-full flex items-center px-4 rounded-l-lg border-r border-[#3d3c37] group-hover:bg-[#2b2a27] transition-colors">
-              Try ARTHA
+              Try VREN
             </div>
             <div className="bg-charcoal text-parchment h-full flex items-center justify-center px-3 rounded-r-lg group-hover:bg-[#2b2a27] transition-colors">
               <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">

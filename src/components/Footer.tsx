@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -10,13 +11,10 @@ export function Footer() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group w-fit">
             <div className="relative w-8 h-8 flex items-center justify-center">
-              <div className="absolute top-1 left-1 w-1.5 h-6 bg-parchment" />
-              <div className="absolute top-1 right-1 w-1.5 h-6 bg-parchment" />
-              <div className="absolute top-1 left-0 w-8 h-1.5 bg-terracotta" />
-              <div className="absolute top-[8px] left-[14px] w-[3px] h-[10px] bg-parchment" />
+              <Image src="/logo.png" alt="VREN Logo" width={32} height={32} className="object-contain" />
             </div>
             <div className="font-display font-medium tracking-[0.2em] leading-none text-2xl text-parchment">
-              ARTHA
+              VREN
             </div>
           </Link>
 
@@ -28,7 +26,7 @@ export function Footer() {
               <a href="#" className="hover:text-parchment transition-colors">YouTube</a>
             </div>
             <p className="font-ui text-[13px] text-stone">
-              © {new Date().getFullYear()} ARTHA Protocol.
+              © {new Date().getFullYear()} VREN Protocol.
             </p>
           </div>
         </div>
@@ -66,7 +64,7 @@ export function Footer() {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">ARTHA Platform</h3>
+              <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">VREN Platform</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
                 <Link href="#" className="hover:text-parchment transition-colors">Console</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Pricing</Link>
@@ -101,7 +99,7 @@ export function Footer() {
             <div className="flex flex-col gap-4">
               <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">Company</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
-                <Link href="/about" className="hover:text-parchment transition-colors">About ARTHA</Link>
+                <Link href="/about" className="hover:text-parchment transition-colors">About VREN</Link>
                 <Link href="/changelog" className="hover:text-parchment transition-colors">Changelog</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Careers</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">News</Link>
