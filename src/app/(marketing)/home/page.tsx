@@ -1,283 +1,405 @@
 "use client";
 
-import { Card } from "@/components/Card";
 import { useRef } from "react";
+import Link from "next/link";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const FEATURES = [
+  {
+    num: "01",
+    title: "Permissionless Onboarding",
+    body: "There is no application process. No KYC form. No manual review queue. You deploy a smart contract to Polygon, register your application on the VREN registry, and your payment infrastructure is live. The entire process takes less than three minutes.",
+  },
+  {
+    num: "02",
+    title: "Instant Settlement",
+    body: "When a user subscribes, USDC flows directly to your designated payout wallet within the same block. There is no seven day hold period, no minimum balance requirement, and no intermediary bank sitting between you and the money your product earned.",
+  },
+  {
+    num: "03",
+    title: "Global by Default",
+    body: "VREN operates on public blockchains. There are no supported country lists, no currency conversion intermediaries, and no arbitrary sanctions on where talent is allowed to exist. If your users have a wallet, they can pay you. Period.",
+  },
+  {
+    num: "04",
+    title: "Transparent Fee Architecture",
+    body: "The platform fee is a flat 1.5 percent, hardcoded into the smart contract with a maximum ceiling of 10 percent that can never be exceeded. You can read the Solidity source yourself. There are no hidden charges.",
+  },
+];
+
+const USE_CASES = [
+  {
+    title: "SaaS Subscriptions",
+    body: "Deploy a recurring payment contract that grants users a time bound ERC 1155 NFT. Connect it to your Next.js application to gate premium routes, dashboards, and API endpoints with a single React hook.",
+  },
+  {
+    title: "API Access Control",
+    body: "Monetize machine learning models, data feeds, or any HTTP API. Users purchase compute credits or subscription tiers on chain. Their wallet signature becomes the API key. No OAuth configuration required.",
+  },
+  {
+    title: "Creator Communities",
+    body: "Replace Patreon and Substack with infrastructure you own. Launch a private Discord, a gated content vault, or a members only newsletter where access is cryptographically verified by on chain subscription status.",
+  },
+  {
+    title: "Open Source Funding",
+    body: "Offer a premium support tier, early access to releases, or priority issue resolution. Contributors subscribe through your VREN contract and you fund development without diluting equity or signing enterprise agreements.",
+  },
+];
+
+const STATS = [
+  { value: "1.5%", label: "Platform Fee", note: "Hardcoded ceiling, fully transparent" },
+  { value: "ERC 1155", label: "Token Standard", note: "Battle tested, broadly supported" },
+  { value: "<3 min", label: "Time to Deploy", note: "From zero to accepting payments" },
+  { value: "137", label: "Chain ID", note: "Polygon PoS Mainnet" },
+];
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // Only animate the hero words "revenue" and "terms"
-    gsap.fromTo(
-      ".hero-word",
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.2, stagger: 0.3, ease: "power4.out", delay: 0.2 }
-    );
+    // Hero text reveal
+    const heroTl = gsap.timeline();
+    heroTl
+      .fromTo(".hero-line",
+        { y: 80, opacity: 0, rotationX: 8 },
+        { y: 0, opacity: 1, rotationX: 0, duration: 1.4, stagger: 0.15, ease: "expo.out" },
+        0.3
+      )
+      .fromTo(".hero-sub",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "expo.out" },
+        0.8
+      )
+      .fromTo(".hero-cta",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "expo.out" },
+        1.0
+      )
+      .fromTo(".hero-stat",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: "expo.out" },
+        1.2
+      );
+
+    // Scroll triggered sections
+    gsap.utils.toArray<HTMLElement>(".scroll-reveal").forEach((el) => {
+      gsap.fromTo(el,
+        { y: 40, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 1, ease: "expo.out",
+          scrollTrigger: { trigger: el, start: "top 85%", once: true },
+        }
+      );
+    });
+
+    // Feature cards stagger
+    ScrollTrigger.batch(".feature-card", {
+      onEnter: (batch) =>
+        gsap.fromTo(batch,
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: "expo.out" }
+        ),
+      start: "top 88%",
+      once: true,
+    });
+
+    // Use case cards
+    ScrollTrigger.batch(".usecase-card", {
+      onEnter: (batch) =>
+        gsap.fromTo(batch,
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9, stagger: 0.1, ease: "expo.out" }
+        ),
+      start: "top 88%",
+      once: true,
+    });
+
+    // Stats
+    ScrollTrigger.batch(".stat-item", {
+      onEnter: (batch) =>
+        gsap.fromTo(batch,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "expo.out" }
+        ),
+      start: "top 90%",
+      once: true,
+    });
+
+    // Divider lines growing in from left
+    gsap.utils.toArray<HTMLElement>(".grow-line").forEach((el) => {
+      gsap.fromTo(el,
+        { scaleX: 0, transformOrigin: "left center" },
+        {
+          scaleX: 1, duration: 1.2, ease: "expo.out",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+        }
+      );
+    });
+
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-parchment text-charcoal font-body flex flex-col items-center overflow-hidden">
+    <div ref={containerRef} className="min-h-screen bg-parchment text-charcoal font-body overflow-hidden">
 
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 1: Hero
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-36 lg:pt-52 pb-24 lg:pb-40">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
 
-      <main className="w-full flex flex-col items-center pt-32 lg:pt-48 pb-24">
-        {/* Asymmetric Hero Grid */}
-        <div className="w-full max-w-[1440px] px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          
-          {/* Left Column - Massive Headline */}
+          {/* Left: Headline */}
           <div className="lg:col-span-7 flex flex-col">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="w-8 h-[1px] bg-terracotta"></span>
-              <span className="font-ui text-xs tracking-widest uppercase text-terracotta font-semibold">
+            <div className="flex items-center gap-3 mb-10">
+              <span className="w-10 h-px bg-terracotta" />
+              <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold">
                 Built in India
               </span>
             </div>
-            
-            <h1 className="font-display font-medium text-[56px] leading-[1.05] tracking-tight text-charcoal sm:text-[80px] lg:text-[100px] xl:text-[120px]">
-              Your <span className="hero-word inline-block opacity-0">revenue.</span>
-              <br />
-              <span className="text-terracotta">Your <span className="hero-word inline-block opacity-0">terms.</span></span>
+            <h1 className="font-display font-medium tracking-tight text-charcoal leading-[0.95]"
+              style={{ fontSize: "clamp(56px, 10vw, 130px)" }}>
+              <span className="hero-line block overflow-hidden">Your revenue.</span>
+              <span className="hero-line block overflow-hidden text-terracotta">Your terms.</span>
             </h1>
           </div>
 
-          {/* Right Column - Editorial Paragraph & CTAs */}
-          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-16">
-            <p className="font-body text-[22px] sm:text-[28px] leading-[1.4] text-charcoal mb-10 text-balance">
-              VREN exists for builders the system forgot. Developers with real skills and real products, locked out of Stripe for reasons that have nothing to do with their ability to build.
+          {/* Right: Subtext and CTAs */}
+          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-20">
+            <p className="hero-sub font-body text-[20px] lg:text-[26px] leading-[1.45] text-charcoal mb-10 text-balance opacity-0">
+              VREN is the payment infrastructure layer for builders the traditional financial system decided to exclude. We replace closed networks with open smart contracts so that any developer, anywhere, can capture the value they create.
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <a
-                href="#"
-                className="bg-terracotta hover:brightness-105 text-white font-ui text-[15px] font-medium px-8 py-3.5 rounded-[4px] transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[1px] flex items-center gap-2 group w-full sm:w-auto justify-center"
-              >
-                Start Integrating
-                <span className="transform transition-transform duration-200 group-hover:translate-x-1">
-                  →
-                </span>
-              </a>
-              <a
-                href="#"
-                className="bg-transparent border border-border-subtle text-charcoal font-ui text-[15px] font-medium px-8 py-3.5 rounded-[4px] transition-all duration-200 hover:bg-sand w-full sm:w-auto justify-center flex items-center"
-              >
-                Read the Docs
-              </a>
+
+            <div className="flex flex-col sm:flex-row items-start gap-4 hero-cta opacity-0">
+              <Link href="/dev-docs"
+                className="bg-charcoal text-parchment font-ui text-[15px] font-medium px-8 py-4 rounded-lg transition-all duration-300 hover:bg-[#2b2a27] hover:shadow-lg hover:-translate-y-px flex items-center gap-2 group">
+                Start Building
+                <span className="transform transition-transform duration-300 group-hover:translate-x-1 font-light">→</span>
+              </Link>
+              <Link href="/how-it-works"
+                className="font-ui text-[15px] font-medium px-8 py-4 border border-border-subtle rounded-lg text-charcoal hover:border-charcoal transition-colors duration-300">
+                How It Works
+              </Link>
             </div>
 
-            <div className="mt-16 flex items-center gap-6 border-t border-border-subtle pt-6">
-              <div className="flex flex-col">
-                <span className="font-display text-2xl text-charcoal">ERC-1155</span>
-                <span className="font-ui text-xs text-text-secondary uppercase tracking-widest mt-1">Standard</span>
+            <div className="mt-16 flex items-center gap-8 border-t border-border-subtle pt-8">
+              <div className="hero-stat flex flex-col opacity-0">
+                <span className="font-display text-[28px] text-charcoal leading-none">ERC 1155</span>
+                <span className="font-ui text-[11px] text-text-muted uppercase tracking-[0.15em] mt-2">Standard</span>
               </div>
-              <div className="w-[1px] h-10 bg-border-subtle"></div>
-              <div className="flex flex-col">
-                <span className="font-display text-2xl text-charcoal">0.0%</span>
-                <span className="font-ui text-xs text-text-secondary uppercase tracking-widest mt-1">Platform Fee</span>
+              <div className="w-px h-10 bg-border-subtle" />
+              <div className="hero-stat flex flex-col opacity-0">
+                <span className="font-display text-[28px] text-charcoal leading-none">1.5%</span>
+                <span className="font-ui text-[11px] text-text-muted uppercase tracking-[0.15em] mt-2">Platform Fee</span>
+              </div>
+              <div className="w-px h-10 bg-border-subtle" />
+              <div className="hero-stat flex flex-col opacity-0">
+                <span className="font-display text-[28px] text-charcoal leading-none">Polygon</span>
+                <span className="font-ui text-[11px] text-text-muted uppercase tracking-[0.15em] mt-2">Network</span>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Feature Sections / Editorial Grid */}
-        <div className="w-full max-w-[1440px] px-6 lg:px-12 mt-32 lg:mt-48">
-          <div className="border-t border-border-subtle pt-8 pb-16">
-            <h2 className="font-display text-[40px] lg:text-[64px] leading-tight text-charcoal tracking-tight max-w-4xl">
-              Premium without permission. Indian without apology.
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 2: The Problem
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+        <div className="grow-line w-full h-px bg-border-subtle mb-16" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+          <div className="lg:col-span-5 scroll-reveal">
+            <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold mb-6 block">
+              The Problem
+            </span>
+            <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.08] tracking-tight text-charcoal">
+              The geographic lottery of global finance.
+            </h2>
+          </div>
+          <div className="lg:col-span-7 flex flex-col gap-10 scroll-reveal">
+            <p className="font-body text-[19px] lg:text-[22px] text-text-secondary leading-[1.55]">
+              We observed a structural flaw in the internet economy. Your ability to capture the value you create is entirely dependent on where you were born. Traditional payment infrastructure excludes over 60 countries, arbitrarily blocking millions of developers from monetizing their work. Not because their products are inferior. Not because their code is substandard. But because they were born on the wrong side of a banking regulation.
+            </p>
+            <p className="font-body text-[19px] lg:text-[22px] text-text-secondary leading-[1.55]">
+              VREN was built to eliminate that dependency. We replaced the closed, permissioned infrastructure of legacy finance with open, composable smart contracts on Polygon. The result is a payment layer where the quality of your product is the only variable that determines your success.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 3: Features
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+        <div className="grow-line w-full h-px bg-border-subtle mb-16" />
+        <div className="mb-16 scroll-reveal">
+          <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold mb-6 block">
+            Core Principles
+          </span>
+          <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.08] tracking-tight text-charcoal max-w-3xl">
+            Infrastructure designed for sovereignty, not surveillance.
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-0">
+          {FEATURES.map((f) => (
+            <div key={f.num} className="feature-card flex flex-col border-t border-border-subtle pt-8 pb-12 group opacity-0">
+              <span className="font-mono text-[12px] text-text-muted mb-5 group-hover:text-terracotta transition-colors duration-300">{f.num}</span>
+              <h3 className="font-display text-[24px] lg:text-[28px] text-charcoal mb-4 tracking-tight">{f.title}</h3>
+              <p className="font-body text-[17px] text-text-secondary leading-[1.65]">{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 4: Code Integration
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+        <div className="scroll-reveal grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border-subtle rounded-2xl overflow-hidden bg-white shadow-[0_16px_48px_rgba(25,25,24,0.06)]">
+
+          {/* Left: Copy */}
+          <div className="p-10 lg:p-16 flex flex-col justify-center lg:border-r border-border-subtle">
+            <span className="font-ui text-[11px] tracking-[0.15em] uppercase text-terracotta font-bold mb-6">
+              Developer Experience
+            </span>
+            <h3 className="font-display text-[32px] lg:text-[42px] leading-[1.1] text-charcoal mb-6 tracking-tight">
+              Three lines of code. Full access control.
+            </h3>
+            <p className="font-body text-[17px] text-text-secondary leading-[1.65] mb-10">
+              Import the SDK, wrap your application in the VREN provider, and call the useGate hook wherever you need to verify a subscription. The smart contract handles payment routing, NFT minting, and expiry verification. Your frontend just asks one question: does this wallet have access?
+            </p>
+            <Link href="/dev-docs" className="font-ui text-charcoal text-[15px] font-medium pb-1 border-b border-charcoal hover:text-terracotta hover:border-terracotta transition-colors inline-flex items-center gap-2 w-fit group">
+              Read the documentation
+              <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </Link>
+          </div>
+
+          {/* Right: Terminal */}
+          <div className="bg-[#161616] flex flex-col">
+            <div className="w-full h-12 border-b border-[#2a2a2a] flex items-center px-6">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+                <div className="w-3 h-3 rounded-full bg-[#28C840]" />
+              </div>
+              <div className="ml-6 font-mono text-[11px] text-[#666666] tracking-[0.1em] uppercase">app.tsx</div>
+            </div>
+            <div className="p-8 lg:p-10 flex-1 flex flex-col justify-center">
+              <pre className="font-mono text-[13px] lg:text-[14px] leading-[1.85] text-[#e0e0e0] overflow-x-auto whitespace-pre">
+<span className="text-[#6a9bcc]">import</span>{" { useGate } "}<span className="text-[#6a9bcc]">from</span>{" "}<span className="text-[#788c5d]">{'"@vren/sdk/react"'}</span>{";\n\n"}<span className="text-[#d97757]">function</span>{" "}<span className="text-white">PremiumDashboard</span>{"() {\n  "}<span className="text-[#d97757]">const</span>{" { data } = "}<span className="text-[#c9a07c]">useGate</span>{"("}<span className="text-[#788c5d]">{'"pro"'}</span>{");\n\n  "}<span className="text-[#d97757]">if</span>{" (!data?.access) "}<span className="text-[#d97757]">return</span>{" <UpgradePrompt />;\n  "}<span className="text-[#d97757]">return</span>{" <Dashboard />;\n}"}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 5: Stats Band
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-16 lg:py-20">
+        <div className="grow-line w-full h-px bg-border-subtle mb-16" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          {STATS.map((s) => (
+            <div key={s.label} className="stat-item flex flex-col opacity-0">
+              <span className="font-display text-[36px] lg:text-[44px] text-charcoal leading-none tracking-tight">{s.value}</span>
+              <span className="font-ui text-[13px] font-semibold text-charcoal mt-3 mb-1">{s.label}</span>
+              <span className="font-body text-[14px] text-text-secondary">{s.note}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 6: Use Cases (Dark Band)
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full bg-charcoal text-parchment py-28 lg:py-40">
+        <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12">
+          <div className="mb-20 scroll-reveal">
+            <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-stone font-bold mb-6 block">
+              Capabilities
+            </span>
+            <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.08] tracking-tight text-parchment max-w-4xl">
+              What you can build with VREN.
             </h2>
           </div>
 
-          {/* Grid Layout for Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16 border-t border-border-subtle pt-12">
-            {[
-              {
-                num: "01",
-                title: "Permissionless",
-                desc: "No KYC to start accepting payments. Deploy your contract and you're instantly in business.",
-              },
-              {
-                num: "02",
-                title: "Instant Settlement",
-                desc: "Funds flow directly into your smart contract vault. Withdraw immediately, not in 7 business days.",
-              },
-              {
-                num: "03",
-                title: "Global by Default",
-                desc: "Accept crypto from anywhere in the world. No supported country lists. No currency conversion fees.",
-              },
-            ].map((feature, idx) => (
-              <div key={idx} className="flex flex-col group cursor-pointer">
-                <div className="font-mono text-xs text-text-muted mb-6 group-hover:text-terracotta transition-colors">{feature.num}</div>
-                <h3 className="font-display text-2xl lg:text-3xl mb-4 text-charcoal">{feature.title}</h3>
-                <p className="font-body text-lg text-text-secondary leading-relaxed pr-4">
-                  {feature.desc}
-                </p>
-                <div className="mt-8 w-full h-[1px] bg-border-subtle group-hover:bg-terracotta transition-colors duration-500"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-0">
+            {USE_CASES.map((uc) => (
+              <div key={uc.title} className="usecase-card flex flex-col border-t border-[#2e2e2c] pt-8 pb-12 opacity-0">
+                <h3 className="font-display text-[22px] lg:text-[26px] text-parchment mb-4 tracking-tight">{uc.title}</h3>
+                <p className="font-body text-[16px] text-stone leading-[1.65]">{uc.body}</p>
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* The Code Section (Cowork mock) */}
-        <div className="w-full max-w-[1200px] px-6 lg:px-12 mt-32 mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border-subtle rounded-xl overflow-hidden bg-white shadow-lg">
-            
-            {/* Left Column - Copy */}
-            <div className="p-12 lg:p-16 xl:p-20 flex flex-col justify-center lg:border-r border-border-subtle">
-              <span className="font-ui text-[11px] tracking-[0.15em] uppercase text-terracotta font-bold mb-6">
-                Smart Contract Access
-              </span>
-              <h3 className="font-display text-4xl lg:text-[46px] leading-[1.1] text-[#111111] mb-6 tracking-tight">
-                Integration in 3 lines of code.
-              </h3>
-              <p className="font-body text-[19px] text-[#555555] leading-[1.6] mb-10">
-                We replace closed financial networks with a decentralized architecture. You deploy an ERC-1155 subscription NFT. Your users mint access. You withdraw revenue directly.
-              </p>
-              <div>
-                <a href="#" className="font-ui text-[#111111] text-[15px] font-medium pb-1 border-b border-[#111111] hover:text-terracotta hover:border-terracotta transition-colors inline-flex items-center gap-1.5 w-fit">
-                  View the documentation <span className="text-[16px]">→</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Right Column - Terminal */}
-            <div className="bg-[#161616] flex flex-col relative overflow-hidden">
-              {/* Terminal Top Bar */}
-              <div className="w-full h-12 border-b border-[#2a2a2a] flex items-center px-6">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#333333]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#333333]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#333333]"></div>
-                </div>
-                <div className="ml-6 font-mono text-[11px] text-[#666666] tracking-[0.15em] uppercase">Subscription.sol</div>
-              </div>
-              
-              {/* Terminal Code Content */}
-              <div className="p-8 lg:p-12 flex-1 flex flex-col justify-center">
-                <pre className="font-mono text-[14px] leading-[1.8] overflow-x-auto text-[#e0e0e0]">
-                  <code>
-                    <span className="text-[#d97757]">function</span>{" "}
-                    <span className="text-white">mintSubscription</span>() <span className="text-[#d97757]">external payable</span> {"{"}
-                    {"\n"}  <span className="text-[#788c5d]">require</span>(msg.value {">="} price, <span className="text-[#788c5d]">"Insufficient funds"</span>);
-                    {"\n"}  
-                    {"\n"}  <span className="text-[#666666]">// Issue access token</span>
-                    {"\n"}  _mint(msg.sender, TIER_PRO, <span className="text-[#6a9bcc]">1</span>, <span className="text-[#788c5d]">""</span>);
-                    {"\n"}  
-                    {"\n"}  <span className="text-[#666666]">// Direct settlement to your wallet</span>
-                    {"\n"}  revenueVault += msg.value;
-                    {"\n"}  <span className="text-[#d97757]">emit</span> <span className="text-[#c9a07c]">SubscriptionMinted</span>(msg.sender);
-                    {"\n"}{"}"}
-                  </code>
-                </pre>
-              </div>
-            </div>
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 7: How It Works
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-28 lg:py-40">
+        <div className="grow-line w-full h-px bg-border-subtle mb-16" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 mb-20 scroll-reveal">
+          <div className="lg:col-span-5">
+            <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold mb-6 block">
+              Architecture
+            </span>
+            <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.08] tracking-tight text-charcoal">
+              Four steps from zero to revenue.
+            </h2>
+          </div>
+          <div className="lg:col-span-7">
+            <p className="font-body text-[19px] lg:text-[22px] text-text-secondary leading-[1.55]">
+              VREN is composed of two audited Solidity contracts, a TypeScript SDK, and a set of React hooks. The entire integration path is designed to be completed in a single afternoon.
+            </p>
           </div>
         </div>
 
-        {/* The Problem Section */}
-        <div className="w-full max-w-[1440px] px-6 lg:px-12 mt-32 lg:mt-48">
-          <div className="border-t border-border-subtle pt-8 pb-16 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-            <div className="lg:col-span-5">
-              <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.1] text-charcoal tracking-tight">
-                The geographic lottery of global finance.
-              </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[
+            { step: "01", title: "Register", body: "Call registerApp on the VREN Registry contract. This generates a unique appId tied to your wallet and sets your payout address." },
+            { step: "02", title: "Create Plans", body: "Define subscription tiers with price (in USDC) and duration (in seconds). Each plan is stored on chain and immediately available to your users." },
+            { step: "03", title: "Integrate the SDK", body: "Install @vren/sdk, wrap your app in VrenProvider, and use the useGate hook to check subscription status on any route or component." },
+            { step: "04", title: "Collect Revenue", body: "When a user subscribes, USDC is split automatically. 98.5 percent goes directly to your payout wallet. 1.5 percent goes to the VREN treasury." },
+          ].map((s) => (
+            <div key={s.step} className="feature-card flex flex-col border-t border-border-subtle pt-8 opacity-0">
+              <span className="font-mono text-[12px] text-terracotta mb-4">{s.step}</span>
+              <h3 className="font-display text-[20px] lg:text-[22px] text-charcoal mb-3 tracking-tight">{s.title}</h3>
+              <p className="font-body text-[15px] text-text-secondary leading-[1.65]">{s.body}</p>
             </div>
-            <div className="lg:col-span-7 flex flex-col gap-10 lg:pt-4">
-              <p className="font-body text-[20px] lg:text-[24px] text-text-secondary leading-relaxed">
-                We observed a structural flaw in the internet economy: your ability to capture the value you create is entirely dependent on where you were born. Standard financial infrastructure excludes over 60 countries, arbitrarily blocking millions of developers from monetizing their work.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 border-t border-border-subtle pt-10">
-                <div className="flex flex-col">
-                  <span className="font-display text-4xl text-charcoal mb-4">60+</span>
-                  <span className="font-ui font-medium text-charcoal mb-2">Countries Excluded</span>
-                  <p className="font-body text-[16px] text-text-secondary leading-relaxed">By major traditional payment gateways due to archaic banking regulations.</p>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-display text-4xl text-charcoal mb-4">$0</span>
-                  <span className="font-ui font-medium text-charcoal mb-2">Platform Tax</span>
-                  <p className="font-body text-[16px] text-text-secondary leading-relaxed">VREN takes exactly zero percentage of your hard-earned revenue.</p>
-                </div>
-              </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 8: CTA Band
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full bg-charcoal">
+        <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-28 lg:py-36">
+          <div className="scroll-reveal flex flex-col items-center text-center">
+            <h2 className="font-display text-[40px] lg:text-[64px] leading-[1.05] tracking-tight text-parchment max-w-3xl mb-8">
+              Your product deserves a payment layer that does not discriminate.
+            </h2>
+            <p className="font-body text-[18px] lg:text-[22px] text-stone max-w-2xl mb-12 text-balance">
+              VREN is free to start, open source, and live on Polygon Mainnet. Deploy your first subscription contract today.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Link href="/dev-docs"
+                className="bg-parchment text-charcoal font-ui text-[15px] font-medium px-10 py-4 rounded-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-px flex items-center gap-2 group">
+                Start Building
+                <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </Link>
+              <Link href="/about"
+                className="font-ui text-[15px] font-medium px-8 py-4 border border-[#2e2e2c] rounded-lg text-stone hover:text-parchment hover:border-parchment/30 transition-all duration-300">
+                Learn More
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* Updates / Editorial Cards Section */}
-        <div className="w-full max-w-[1440px] px-6 lg:px-12 mt-32 lg:mt-40">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div>
-              <span className="font-ui text-xs tracking-widest uppercase text-terracotta font-semibold mb-6 block">Dispatch</span>
-              <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.1] text-charcoal tracking-tight">
-                Latest updates
-              </h2>
-            </div>
-            <a href="#" className="font-ui text-[15px] text-charcoal hover:text-terracotta transition-colors flex items-center gap-2 group pb-2">
-              View all dispatches
-              <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
-            </a>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card 
-              eyebrow="Architecture"
-              title="State Machine Consensus in Web3 Subscriptions"
-              description="A deep dive into how VREN utilizes multi-signature wallet verification to prevent replay attacks and ensure instantaneous global settlements."
-              date="Jun 12, 2026"
-              href="#"
-            />
-            <Card 
-              eyebrow="Release"
-              title="VREN Protocol v1.0 Mainnet Launch"
-              description="After three rigorous security audits, the core ERC-1155 protocol is officially live on Ethereum and Polygon mainnets."
-              date="Jun 05, 2026"
-              href="#"
-            />
-            <Card 
-              eyebrow="Community"
-              title="Unlocking the Global South for Builders"
-              description="Why traditional fiat gateways systematically exclude emerging markets, and how decentralized infrastructure forces an open door."
-              date="May 28, 2026"
-              href="#"
-            />
-          </div>
-        </div>
-
-        {/* Use Cases Section */}
-        <div className="w-full bg-charcoal text-parchment py-32 lg:py-48 mt-32 lg:mt-48">
-          <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12">
-            <div className="mb-20">
-              <span className="font-ui text-xs tracking-widest uppercase text-stone font-semibold mb-6 block">Capabilities</span>
-              <h2 className="font-display text-[40px] lg:text-[64px] leading-tight tracking-tight max-w-4xl text-parchment">
-                What can you build with VREN?
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-              {[
-                {
-                  title: "SaaS Subscriptions",
-                  desc: "Deploy a recurring payment smart contract that grants users a time-bound NFT. Connect it to your Next.js app to gate premium routes.",
-                },
-                {
-                  title: "API Gateways",
-                  desc: "Monetize your machine learning models or data APIs. Users purchase compute credits directly on-chain, unlocking API keys instantly.",
-                },
-                {
-                  title: "Creator Communities",
-                  desc: "Bypass Patreon and Substack. Launch a private Discord or content vault where access is strictly verified by wallet signatures.",
-                },
-              ].map((useCase, idx) => (
-                <div key={idx} className="flex flex-col border-t border-[#3d3c37] pt-8 group">
-                  <h3 className="font-display text-2xl lg:text-3xl mb-4 text-parchment">{useCase.title}</h3>
-                  <p className="font-body text-lg text-stone leading-relaxed">
-                    {useCase.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </main>
+      </section>
     </div>
   );
 }
