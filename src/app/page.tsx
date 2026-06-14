@@ -1,8 +1,24 @@
+"use client";
+
 import { Card } from "@/components/Card";
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Only animate the hero words "revenue" and "terms"
+    gsap.fromTo(
+      ".hero-word",
+      { y: 50, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.2, stagger: 0.3, ease: "power4.out", delay: 0.2 }
+    );
+  }, { scope: containerRef });
+
   return (
-    <div className="min-h-screen bg-parchment text-charcoal font-body flex flex-col items-center overflow-hidden">
+    <div ref={containerRef} className="min-h-screen bg-parchment text-charcoal font-body flex flex-col items-center overflow-hidden">
 
 
       <main className="w-full flex flex-col items-center pt-32 lg:pt-48 pb-24">
@@ -10,7 +26,7 @@ export default function Home() {
         <div className="w-full max-w-[1440px] px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           
           {/* Left Column - Massive Headline */}
-          <div className="lg:col-span-7 flex flex-col animate-[fade-in-up_600ms_cubic-bezier(0.0,0.0,0.2,1)_forwards] opacity-0">
+          <div className="lg:col-span-7 flex flex-col">
             <div className="flex items-center gap-3 mb-8">
               <span className="w-8 h-[1px] bg-terracotta"></span>
               <span className="font-ui text-xs tracking-widest uppercase text-terracotta font-semibold">
@@ -19,14 +35,14 @@ export default function Home() {
             </div>
             
             <h1 className="font-display font-medium text-[56px] leading-[1.05] tracking-tight text-charcoal sm:text-[80px] lg:text-[100px] xl:text-[120px]">
-              Your revenue.
+              Your <span className="hero-word inline-block opacity-0">revenue.</span>
               <br />
-              <span className="text-terracotta">Your terms.</span>
+              <span className="text-terracotta">Your <span className="hero-word inline-block opacity-0">terms.</span></span>
             </h1>
           </div>
 
           {/* Right Column - Editorial Paragraph & CTAs */}
-          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-16 animate-[fade-in-up_600ms_cubic-bezier(0.0,0.0,0.2,1)_150ms_forwards] opacity-0">
+          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-16">
             <p className="font-body text-[22px] sm:text-[28px] leading-[1.4] text-charcoal mb-10 text-balance">
               ARTHA exists for builders the system forgot. Developers with real skills and real products, locked out of Stripe for reasons that have nothing to do with their ability to build.
             </p>
@@ -103,42 +119,53 @@ export default function Home() {
         </div>
 
         {/* The Code Section (Cowork mock) */}
-        <div className="w-full max-w-[1440px] px-6 lg:px-12 mt-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border-subtle rounded-xl overflow-hidden bg-bg-surface shadow-sm">
-            <div className="p-10 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-border-subtle">
-              <span className="font-ui text-xs tracking-widest uppercase text-terracotta font-semibold mb-4">
+        <div className="w-full max-w-[1200px] px-6 lg:px-12 mt-32 mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border-subtle rounded-xl overflow-hidden bg-white shadow-lg">
+            
+            {/* Left Column - Copy */}
+            <div className="p-12 lg:p-16 xl:p-20 flex flex-col justify-center lg:border-r border-border-subtle">
+              <span className="font-ui text-[11px] tracking-[0.15em] uppercase text-terracotta font-bold mb-6">
                 Smart Contract Access
               </span>
-              <h3 className="font-display text-4xl lg:text-5xl leading-tight mb-6">
+              <h3 className="font-display text-4xl lg:text-[46px] leading-[1.1] text-[#111111] mb-6 tracking-tight">
                 Integration in 3 lines of code.
               </h3>
-              <p className="font-body text-xl text-text-secondary leading-relaxed mb-10">
+              <p className="font-body text-[19px] text-[#555555] leading-[1.6] mb-10">
                 We replace closed financial networks with a decentralized architecture. You deploy an ERC-1155 subscription NFT. Your users mint access. You withdraw revenue directly.
               </p>
-              <a href="#" className="font-ui text-charcoal font-medium underline underline-offset-4 decoration-border-subtle hover:decoration-terracotta transition-all inline-flex items-center w-fit">
-                View the documentation →
-              </a>
-            </div>
-            <div className="bg-charcoal p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-12 border-b border-[#3d3c37] flex items-center px-4 gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#3d3c37]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#3d3c37]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#3d3c37]"></div>
-                <div className="ml-4 font-mono text-[11px] text-stone tracking-widest uppercase">Subscription.sol</div>
+              <div>
+                <a href="#" className="font-ui text-[#111111] text-[15px] font-medium pb-1 border-b border-[#111111] hover:text-terracotta hover:border-terracotta transition-colors inline-flex items-center gap-1.5 w-fit">
+                  View the documentation <span className="text-[16px]">→</span>
+                </a>
               </div>
-              <div className="pt-10">
-                <pre className="font-mono text-[13px] sm:text-[14px] leading-[1.7] overflow-x-auto text-parchment">
+            </div>
+
+            {/* Right Column - Terminal */}
+            <div className="bg-[#161616] flex flex-col relative overflow-hidden">
+              {/* Terminal Top Bar */}
+              <div className="w-full h-12 border-b border-[#2a2a2a] flex items-center px-6">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#333333]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#333333]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#333333]"></div>
+                </div>
+                <div className="ml-6 font-mono text-[11px] text-[#666666] tracking-[0.15em] uppercase">Subscription.sol</div>
+              </div>
+              
+              {/* Terminal Code Content */}
+              <div className="p-8 lg:p-12 flex-1 flex flex-col justify-center">
+                <pre className="font-mono text-[14px] leading-[1.8] overflow-x-auto text-[#e0e0e0]">
                   <code>
-                    <span className="text-terracotta">function</span>{" "}
-                    <span className="text-warm-gold">mintSubscription</span>() <span className="text-terracotta">external</span> <span className="text-terracotta">payable</span> {"{"}
-                    {"\n"}  <span className="text-sage">require</span>(msg.value {">="} price, <span className="text-sage">"Insufficient funds"</span>);
+                    <span className="text-[#d97757]">function</span>{" "}
+                    <span className="text-white">mintSubscription</span>() <span className="text-[#d97757]">external payable</span> {"{"}
+                    {"\n"}  <span className="text-[#788c5d]">require</span>(msg.value {">="} price, <span className="text-[#788c5d]">"Insufficient funds"</span>);
                     {"\n"}  
-                    {"\n"}  <span className="text-dim">// Issue access token</span>
-                    {"\n"}  _mint(msg.sender, TIER_PRO, <span className="text-sky">1</span>, <span className="text-sage">""</span>);
+                    {"\n"}  <span className="text-[#666666]">// Issue access token</span>
+                    {"\n"}  _mint(msg.sender, TIER_PRO, <span className="text-[#6a9bcc]">1</span>, <span className="text-[#788c5d]">""</span>);
                     {"\n"}  
-                    {"\n"}  <span className="text-dim">// Direct settlement to your wallet</span>
+                    {"\n"}  <span className="text-[#666666]">// Direct settlement to your wallet</span>
                     {"\n"}  revenueVault += msg.value;
-                    {"\n"}  emit <span className="text-warm-gold">SubscriptionMinted</span>(msg.sender);
+                    {"\n"}  <span className="text-[#d97757]">emit</span> <span className="text-[#c9a07c]">SubscriptionMinted</span>(msg.sender);
                     {"\n"}{"}"}
                   </code>
                 </pre>
