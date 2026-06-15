@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 import "./globals.css";
+import { Providers } from "./providers";
 
 const anthropicSans = localFont({
   src: "./fonts/AnthropicSans-Roman.woff2",
@@ -92,7 +93,9 @@ export default function RootLayout({
       <body
         className={`antialiased bg-parchment text-charcoal font-body selection:bg-terracotta selection:text-white overflow-x-hidden m-0 p-0`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -65,16 +65,16 @@ export function NavBar() {
 
               {/* Dropdown Menu (CSS Driven) */}
               <div className="absolute top-full right-0 w-48 bg-white border border-border-subtle rounded-xl shadow-[0_16px_40px_rgba(25,25,24,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 flex flex-col py-2 z-50">
-                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                <Link href="/dev-docs" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
                   Developers
                 </Link>
-                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                <Link href="/pricing" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
                   Pricing
                 </Link>
-                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                <Link href="/dev-docs" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
                   Documentation
                 </Link>
-                <Link href="#" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
+                <Link href="/blog" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
                   Blog
                 </Link>
                 <Link href="/changelog" className="px-5 py-2.5 text-[17px] text-text-secondary hover:text-charcoal hover:bg-parchment/60 transition-colors">
@@ -86,17 +86,10 @@ export function NavBar() {
 
           <div className="w-4 hidden lg:block"></div>
 
-          {/* Split CTA Button */}
-          <div className="flex items-center h-10 shadow-sm transition-transform hover:-translate-y-[1px] hover:shadow-md cursor-pointer group">
-            <div className="bg-charcoal text-parchment font-ui text-[16px] font-medium h-full flex items-center px-4 rounded-l-lg border-r border-[#3d3c37] group-hover:bg-[#2b2a27] transition-colors">
-              Try VREN
-            </div>
-            <div className="bg-charcoal text-parchment h-full flex items-center justify-center px-3 rounded-r-lg group-hover:bg-[#2b2a27] transition-colors">
-              <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1.5L6 5.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
+          {/* Login Button */}
+          <Link href="/login" className="flex items-center h-10 px-5 bg-charcoal text-parchment font-ui text-[15px] font-medium rounded-lg shadow-sm hover:bg-[#2b2a27] hover:-translate-y-[1px] hover:shadow-md transition-all cursor-pointer">
+            Login
+          </Link>
         </div>
       </div>
     </nav>
