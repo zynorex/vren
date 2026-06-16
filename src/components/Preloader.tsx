@@ -1,58 +1,101 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export function Preloader() {
-  // 0 = loading (visible), 1 = sliding up, 2 = removed from DOM
   const [loadingState, setLoadingState] = useState(0); 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Only show the preloader once per session to avoid annoying the user
+  useGSAP(() => {
+    // Only show the preloader once per session
     if (sessionStorage.getItem("vren_preloader_seen")) {
       setLoadingState(2);
       return;
     }
 
-    // Sequence the loading animation
-    const timer1 = setTimeout(() => setLoadingState(1), 1600); // Trigger the upward slide
-    const timer2 = setTimeout(() => {
-      setLoadingState(2);
-      sessionStorage.setItem("vren_preloader_seen", "true");
-    }, 2800); // Fully remove from DOM after slide finishes
+    const tl = gsap.timeline({
+      onComplete: () => {
+        sessionStorage.setItem("vren_preloader_seen", "true");
+        setLoadingState(2);
+      }
+    });
 
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
-  }, []);
+    // Initial state
+    gsap.set(logoRef.current, { scale: 0.9, opacity: 0, y: 20 });
+    gsap.set(progressRef.current, { scaleX: 0, transformOrigin: "left center" });
+    gsap.set(textRef.current, { opacity: 0, y: 10, filter: "blur(4px)" });
+
+    // Animation sequence
+    tl.to(logoRef.current, {
+      scale: 1,
+      opacity: 1,
+      y: 0,
+      duration: 1.4,
+      ease: "power3.out"
+    })
+    .to(textRef.current, {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 0.8,
+      ease: "power2.out"
+    }, "-=0.8")
+    .to(progressRef.current, {
+      scaleX: 1,
+      duration: 1.6,
+      ease: "power4.inOut"
+    }, "-=0.4")
+    .to([logoRef.current, textRef.current, progressRef.current], {
+      y: -40,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: "power2.in"
+    }, "+=0.3")
+    .to(containerRef.current, {
+      yPercent: -100,
+      duration: 1.2,
+      ease: "expo.inOut"
+    });
+
+  }, { scope: containerRef });
 
   if (loadingState === 2) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[200] flex flex-col items-center justify-center bg-charcoal text-parchment transition-transform duration-[1200ms] ease-[cubic-bezier(0.85,0,0.15,1)] ${
-        loadingState === 1 ? "-translate-y-full" : "translate-y-0"
-      }`}
+      ref={containerRef}
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-charcoal text-parchment overflow-hidden"
     >
-      <div className="flex flex-col items-center">
-        {/* Brand Lockup */}
-        <div className="flex items-center gap-2 mb-8 opacity-0 animate-[fade-in_800ms_ease-out_forwards]">
-          <div className="relative w-8 h-8 flex items-center justify-center">
-            <div className="absolute top-1 left-1 w-1.5 h-6 bg-parchment" />
-            <div className="absolute top-1 right-1 w-1.5 h-6 bg-parchment" />
-            <div className="absolute top-1 left-0 w-8 h-1.5 bg-terracotta" />
-            <div className="absolute top-[8px] left-[14px] w-[3px] h-[10px] bg-parchment" />
-          </div>
-          <span className="font-display font-medium tracking-[0.2em] leading-none text-3xl">
-            VREN
-          </span>
+      <div className="flex flex-col items-center z-10">
+        <div ref={logoRef} className="relative w-32 h-32 mb-8 drop-shadow-2xl">
+          <Image 
+            src="/transparentLogo.png" 
+            alt="VREN" 
+            fill 
+            className="object-contain"
+            priority
+          />
         </div>
         
-        {/* Progressive Loading Line */}
-        <div className="w-[180px] h-[1px] bg-[#3d3c37] relative overflow-hidden opacity-0 animate-[fade-in_400ms_ease-out_400ms_forwards]">
-          <div className="absolute top-0 left-0 h-full bg-terracotta w-full origin-left animate-[progress-line_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"></div>
+        <div ref={textRef} className="font-display tracking-[0.4em] text-[15px] mb-10 text-parchment/90 uppercase font-medium">
+          VREN Protocol
+        </div>
+
+        <div className="w-[240px] h-[2px] bg-white/10 overflow-hidden rounded-full">
+          <div ref={progressRef} className="h-full bg-terracotta w-full rounded-full"></div>
         </div>
       </div>
+      
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(217,119,87,0.08)_0%,transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none" />
     </div>
   );
 }

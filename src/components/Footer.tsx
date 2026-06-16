@@ -39,9 +39,9 @@ export function Footer() {
             <div className="flex flex-col gap-4">
               <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">Products</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
-                <Link href="#" className="hover:text-parchment transition-colors">Gateway</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">Smart Contracts</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">Dashboard</Link>
+                <Link href="/dev-docs" className="hover:text-parchment transition-colors">Gateway</Link>
+                <Link href="/dev-docs" className="hover:text-parchment transition-colors">Smart Contracts</Link>
+                <Link href="/dashboard" className="hover:text-parchment transition-colors">Dashboard</Link>
               </div>
             </div>
             <div className="flex flex-col gap-4">
@@ -58,17 +58,17 @@ export function Footer() {
             <div className="flex flex-col gap-4">
               <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">Solutions</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
-                <Link href="#" className="hover:text-parchment transition-colors">For Enterprise</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">For Creators</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">For Open Source</Link>
+                <Link href="/pricing" className="hover:text-parchment transition-colors">For Enterprise</Link>
+                <Link href="/how-it-works" className="hover:text-parchment transition-colors">For Creators</Link>
+                <Link href="/how-it-works" className="hover:text-parchment transition-colors">For Open Source</Link>
               </div>
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">VREN Platform</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
-                <Link href="#" className="hover:text-parchment transition-colors">Console</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">Pricing</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">API Reference</Link>
+                <Link href="/dashboard" className="hover:text-parchment transition-colors">Console</Link>
+                <Link href="/pricing" className="hover:text-parchment transition-colors">Pricing</Link>
+                <Link href="/dev-docs" className="hover:text-parchment transition-colors">API Reference</Link>
               </div>
             </div>
           </div>
@@ -78,10 +78,10 @@ export function Footer() {
             <div className="flex flex-col gap-4">
               <h3 className="font-ui text-[12px] font-medium text-parchment tracking-wide">Resources</h3>
               <div className="flex flex-col gap-3 font-ui text-[12px] font-normal tracking-[-0.24px] text-stone">
-                <Link href="#" className="hover:text-parchment transition-colors">Documentation</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">Guides</Link>
+                <Link href="/dev-docs" className="hover:text-parchment transition-colors">Documentation</Link>
+                <Link href="/dev-docs" className="hover:text-parchment transition-colors">Guides</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Community</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">Blog</Link>
+                <Link href="/blog" className="hover:text-parchment transition-colors">Blog</Link>
               </div>
             </div>
             <div className="flex flex-col gap-4">
@@ -102,7 +102,7 @@ export function Footer() {
                 <Link href="/about" className="hover:text-parchment transition-colors">About VREN</Link>
                 <Link href="/changelog" className="hover:text-parchment transition-colors">Changelog</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Careers</Link>
-                <Link href="#" className="hover:text-parchment transition-colors">News</Link>
+                <Link href="/blog" className="hover:text-parchment transition-colors">News</Link>
                 <Link href="#" className="hover:text-parchment transition-colors">Contact</Link>
               </div>
             </div>

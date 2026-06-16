@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -140,6 +141,27 @@ export default function Home() {
       );
     });
 
+    // Logo Parallax and floating effect
+    gsap.to(".hero-logo-bg", {
+      yPercent: 30,
+      ease: "none",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+      },
+    });
+
+    gsap.to(".hero-logo-bg", {
+      rotation: 5,
+      y: -20,
+      duration: 6,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+
   }, { scope: containerRef });
 
   return (
@@ -148,18 +170,30 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 1: Hero
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-36 lg:pt-52 pb-24 lg:pb-40">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+      <section className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-36 lg:pt-52 pb-24 lg:pb-40 min-h-screen flex flex-col justify-center">
+        
+        {/* Background Logo Element */}
+        <div className="hero-logo-bg absolute top-1/2 left-2/3 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-[0.04] pointer-events-none z-0">
+          <Image 
+            src="/transparentLogo.png" 
+            alt="VREN Logo Background" 
+            fill 
+            className="object-contain drop-shadow-[0_0_100px_rgba(201,168,76,0.5)]" 
+            priority
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center relative z-10">
 
           {/* Left: Headline */}
           <div className="lg:col-span-7 flex flex-col">
-            <div className="flex items-center gap-3 mb-10">
+            <div className="flex items-center gap-3 mb-10 opacity-0 hero-line">
               <span className="w-10 h-px bg-terracotta" />
               <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold">
                 Built in India
               </span>
             </div>
-            <h1 className="font-display font-medium tracking-tight text-charcoal leading-[0.95]"
+            <h1 className="font-display font-medium tracking-tight text-charcoal leading-[0.95] drop-shadow-sm"
               style={{ fontSize: "clamp(56px, 10vw, 130px)" }}>
               <span className="hero-line block overflow-hidden">Your revenue.</span>
               <span className="hero-line block overflow-hidden text-terracotta">Your terms.</span>
@@ -167,36 +201,45 @@ export default function Home() {
           </div>
 
           {/* Right: Subtext and CTAs */}
-          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-20">
-            <p className="hero-sub font-body text-[20px] lg:text-[26px] leading-[1.45] text-charcoal mb-10 text-balance opacity-0">
+          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-10">
+            
+            {/* Visual Logo Lockup beside text on desktop */}
+            <div className="hidden lg:flex items-center gap-4 mb-8 opacity-0 hero-sub">
+              <div className="w-12 h-12 relative">
+                <Image src="/transparentLogo.png" alt="VREN Mark" fill className="object-contain" />
+              </div>
+              <div className="h-px flex-1 bg-gradient-to-r from-border-subtle to-transparent" />
+            </div>
+
+            <p className="hero-sub font-body text-[20px] lg:text-[24px] leading-[1.5] text-charcoal mb-10 text-balance opacity-0">
               VREN is the payment infrastructure layer for builders the traditional financial system decided to exclude. We replace closed networks with open smart contracts so that any developer, anywhere, can capture the value they create.
             </p>
 
             <div className="flex flex-col sm:flex-row items-start gap-4 hero-cta opacity-0">
               <Link href="/dev-docs"
-                className="bg-charcoal text-parchment font-ui text-[15px] font-medium px-8 py-4 rounded-lg transition-all duration-300 hover:bg-[#2b2a27] hover:shadow-lg hover:-translate-y-px flex items-center gap-2 group">
+                className="bg-charcoal text-parchment font-ui text-[15px] font-medium px-8 py-4 rounded-lg transition-all duration-300 hover:bg-[#2b2a27] hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 group border border-transparent">
                 Start Building
                 <span className="transform transition-transform duration-300 group-hover:translate-x-1 font-light">→</span>
               </Link>
               <Link href="/how-it-works"
-                className="font-ui text-[15px] font-medium px-8 py-4 border border-border-subtle rounded-lg text-charcoal hover:border-charcoal transition-colors duration-300">
+                className="font-ui text-[15px] font-medium px-8 py-4 border border-border-subtle rounded-lg text-charcoal hover:border-charcoal hover:bg-white/50 transition-all duration-300 backdrop-blur-sm">
                 How It Works
               </Link>
             </div>
 
-            <div className="mt-16 flex items-center gap-8 border-t border-border-subtle pt-8">
+            <div className="mt-16 flex items-center gap-6 lg:gap-8 border-t border-border-subtle pt-8">
               <div className="hero-stat flex flex-col opacity-0">
-                <span className="font-display text-[28px] text-charcoal leading-none">ERC 1155</span>
+                <span className="font-display text-[26px] lg:text-[28px] text-charcoal leading-none">ERC 1155</span>
                 <span className="font-ui text-[11px] text-text-muted uppercase tracking-[0.15em] mt-2">Standard</span>
               </div>
               <div className="w-px h-10 bg-border-subtle" />
               <div className="hero-stat flex flex-col opacity-0">
-                <span className="font-display text-[28px] text-charcoal leading-none">1.5%</span>
+                <span className="font-display text-[26px] lg:text-[28px] text-charcoal leading-none">1.5%</span>
                 <span className="font-ui text-[11px] text-text-muted uppercase tracking-[0.15em] mt-2">Platform Fee</span>
               </div>
               <div className="w-px h-10 bg-border-subtle" />
               <div className="hero-stat flex flex-col opacity-0">
-                <span className="font-display text-[28px] text-charcoal leading-none">Polygon</span>
+                <span className="font-display text-[26px] lg:text-[28px] text-charcoal leading-none">Polygon</span>
                 <span className="font-ui text-[11px] text-text-muted uppercase tracking-[0.15em] mt-2">Network</span>
               </div>
             </div>
