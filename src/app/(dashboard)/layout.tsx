@@ -98,11 +98,15 @@ export default function DashboardLayout({
 
         {/* User Profile / Logout Area */}
         <div className="p-4 border-t border-border-subtle">
-          <form action="/api/auth/logout" method="POST">
+          <form action={async () => {
+            "use server";
+            const { signOut } = await import("@/lib/auth");
+            await signOut({ redirectTo: "/login" });
+          }}>
             <button type="submit" className="w-full flex items-center justify-between px-3 py-2 rounded-md text-text-secondary hover:text-charcoal hover:bg-[#fafafa] transition-colors group">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-terracotta to-warm-gold flex items-center justify-center font-ui text-[11px] font-bold text-parchment">
-                  0x
+                  G
                 </div>
                 <span className="font-mono text-[13px] font-medium text-charcoal">Sign Out</span>
               </div>

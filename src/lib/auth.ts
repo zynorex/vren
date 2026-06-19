@@ -1,46 +1,51 @@
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { sessionOptions, SessionData } from "./session";
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  ],
+  callbacks: {
+    async signIn({ user }) {
+      if (user.email) {
+        try {
+          await prisma.developer.upsert({
+            where: { email: user.email },
+            update: {
+              name: user.name || undefined,
+            },
+            create: {
+              email: user.email,
+              name: user.name,
+            },
+          });
+        } catch (error) {
+          console.error("Error upserting developer:", error);
+          // Still allow sign in even if DB fails initially or schema isn't pushed
+        }
+      }
+      return true;
+    },
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+  },
+});
 
 /**
- * Gets the currently authenticated wallet address from the session.
- *
- * SECURITY:
- * - iron-session cookies are encrypted and tamper-proof.
- * - The address was verified via SIWE signature during login.
- * - No database lookup required — session is stateless.
- *
- * @returns The session data or null if unauthenticated.
+ * Helper to get the session directly from NextAuth.
  */
-export async function getSession(): Promise<SessionData | null> {
-  const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(
-    cookieStore,
-    sessionOptions
-  );
-
-  if (!session.address) {
-    return null;
-  }
-
-  return {
-    address: session.address,
-    chainId: session.chainId,
-    authenticatedAt: session.authenticatedAt,
-  };
+export async function getSession() {
+  const session = await auth();
+  return session?.user ? session : null;
 }
 
-/**
- * Gets the authenticated session or redirects to /login.
- * Use this in Server Components that require authentication.
- */
-export async function requireSession(): Promise<SessionData> {
-  const session = await getSession();
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  return session;
-}
