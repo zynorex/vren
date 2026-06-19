@@ -4,17 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Supabase PostgreSQL connection string (Transaction connection pooler string)
   url      = env("DATABASE_URL")
-  // Supabase direct connection string (For migrations)
-  directUrl = env("DIRECT_URL")
 }
 
 /// The B2B developer using VREN to monetize their protocol.
 model Developer {
   id        String   @id @default(cuid())
-  wallet    String   @unique // The primary EVM address used to sign in
-  email     String?  @unique
+  wallet    String?  @unique // The EVM address used for payouts (can be linked later)
+  email     String   @unique // Primary identifier from Google
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
