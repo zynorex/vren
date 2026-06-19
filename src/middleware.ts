@@ -1,11 +1,12 @@
-import NextAuth from "next-auth";
-import authConfig from "@/lib/auth.config";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const { auth } = NextAuth(authConfig);
+export function middleware(req: NextRequest) {
+  // NextAuth sets different cookie names in development vs production
+  const isAuthenticated = 
+    req.cookies.has("authjs.session-token") || 
+    req.cookies.has("__Secure-authjs.session-token");
 
-export default auth((req) => {
-  const isAuthenticated = !!req.auth;
   const { pathname } = req.nextUrl;
 
   // ── Protected dashboard routes ─────────────────────────────────
@@ -39,7 +40,9 @@ export default auth((req) => {
       { status: 401 }
     );
   }
-});
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
