@@ -98,6 +98,19 @@ export async function POST(req: Request) {
             eventType,
           },
         });
+
+        // Record the transaction for dashboard display
+        await prisma.transaction.create({
+          data: {
+            transactionHash,
+            type: "new_subscription",
+            usdcAmount: plan.price,
+            wallet: subscriber.toLowerCase(),
+            tokenId: tokenId ? String(tokenId) : null,
+            appId: app.id,
+            planId: plan.id,
+          },
+        });
       });
 
       return NextResponse.json({ message: "Subscription processed successfully" });

@@ -1,17 +1,27 @@
 import { http, createConfig } from "wagmi";
 import { polygon, polygonAmoy, hardhat } from "wagmi/chains";
-import { injected, walletConnect, coinbaseWallet } from "wagmi/connectors";
+import { injected, coinbaseWallet } from "wagmi/connectors";
 
 /**
  * VREN Wagmi Configuration
  *
- * Configures wallet connectors and chain support for the VREN dashboard.
- * Supports MetaMask (injected), WalletConnect, and Coinbase Wallet.
+ * Uses manual connector setup instead of RainbowKit's getDefaultConfig
+ * to avoid the mandatory WalletConnect projectId requirement during development.
+ *
+ * Wallet support:
+ * - Injected wallets (MetaMask, Phantom, Brave, etc.) — always available
+ * - Coinbase Wallet — always available
+ * - WalletConnect — optional, enabled only when projectId is provided
+ *
+ * Chain support:
+ * - Polygon PoS (mainnet) — production
+ * - Polygon Amoy (testnet) — staging
+ * - Hardhat (localhost) — development
  *
  * SECURITY:
- * - Only Polygon chains are configured (mainnet + Amoy testnet + local Hardhat).
- * - WalletConnect requires a projectId from cloud.walletconnect.com.
- * - The `injected` connector auto-detects MetaMask, Brave Wallet, etc.
+ * - SSR is enabled for Next.js hydration safety
+ * - Only Polygon-family chains are whitelisted
+ * - shimDisconnect prevents stale connection state
  */
 
 const WALLETCONNECT_PROJECT_ID =
@@ -23,19 +33,6 @@ export const wagmiConfig = createConfig({
     injected({
       shimDisconnect: true,
     }),
-    ...(WALLETCONNECT_PROJECT_ID
-      ? [
-          walletConnect({
-            projectId: WALLETCONNECT_PROJECT_ID,
-            metadata: {
-              name: "VREN",
-              description: "Permissionless payment infrastructure",
-              url: "https://vren.tech",
-              icons: ["https://vren.tech/logo.png"],
-            },
-          }),
-        ]
-      : []),
     coinbaseWallet({
       appName: "VREN",
     }),
@@ -47,3 +44,6 @@ export const wagmiConfig = createConfig({
   },
   ssr: true,
 });
+
+// Export for RainbowKit
+export const walletConnectProjectId = WALLETCONNECT_PROJECT_ID;

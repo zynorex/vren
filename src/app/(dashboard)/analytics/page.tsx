@@ -1,7 +1,72 @@
 import React from "react";
 import { TrendingUp, TrendingDown, DollarSign, Users, Activity, BarChart2 } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { calcMRR, formatUSD, growthRate } from "@/lib/utils";
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+
+  const developer = await db.developer.findUnique({
+    where: { wallet: session.user.id },
+    include: { apps: { select: { id: true } } },
+  });
+
+  const appIds = developer?.apps.map((a) => a.id) ?? [];
+  const now = new Date();
+  const d30 = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
+  const d60 = new Date(now.getTime() - 60 * 24 * 3600 * 1000);
+
+  const [currentSubs, prevSubs, churned, prevChurned, newThis, newPrev] =
+    appIds.length === 0
+      ? [[], [], 0, 0, 0, 0]
+      : await Promise.all([
+          db.subscriber.findMany({
+            where: { appId: { in: appIds }, expiry: { gt: now } },
+            include: { plan: { select: { id: true, name: true, price: true, duration: true } } },
+          }),
+          db.subscriber.findMany({
+            where: { appId: { in: appIds }, createdAt: { lt: d30 }, expiry: { gt: d30 } },
+            include: { plan: { select: { id: true, name: true, price: true, duration: true } } },
+          }),
+          db.subscriber.count({ where: { appId: { in: appIds }, active: false, updatedAt: { gte: d30 } } }),
+          db.subscriber.count({ where: { appId: { in: appIds }, active: false, updatedAt: { gte: d60, lt: d30 } } }),
+          db.subscriber.count({ where: { appId: { in: appIds }, createdAt: { gte: d30 } } }),
+          db.subscriber.count({ where: { appId: { in: appIds }, createdAt: { gte: d60, lt: d30 } } }),
+        ]);
+
+  type SubWithPlan = { plan: { id: string; name: string; price: string; duration: number } };
+  const currentMRR = calcMRR((currentSubs as SubWithPlan[]).map((s) => s.plan));
+  const prevMRR = calcMRR((prevSubs as SubWithPlan[]).map((s) => s.plan));
+  const activeCount = (currentSubs as unknown[]).length;
+  const prevCount = (prevSubs as unknown[]).length;
+  const churnedN = churned as number;
+  const churnRate = activeCount + churnedN > 0 ? (churnedN / (activeCount + churnedN)) * 100 : 0;
+  const prevChurnedN = prevChurned as number;
+  const prevChurnRate = prevCount + prevChurnedN > 0 ? (prevChurnedN / (prevCount + prevChurnedN)) * 100 : 0;
+  const churnDelta = churnRate - prevChurnRate;
+  const arpu = activeCount > 0 ? currentMRR / activeCount : 0;
+  const ltv = arpu * 12;
+  const arpuGrowth = growthRate(arpu, prevCount > 0 ? prevMRR / prevCount : 0);
+  const newGrowth = growthRate(newThis as number, newPrev as number);
+
+  // Revenue by plan breakdown
+  const planRevenue: Record<string, { name: string; mrr: number }> = {};
+  for (const sub of currentSubs as SubWithPlan[]) {
+    const { id, name, price, duration } = sub.plan;
+    const contribution = (Number(price) / 1_000_000) * ((30 * 24 * 3600) / duration);
+    if (!planRevenue[id]) planRevenue[id] = { name, mrr: 0 };
+    planRevenue[id].mrr += contribution;
+  }
+  const planBreakdown = Object.values(planRevenue)
+    .map((p) => ({ name: p.name, pct: currentMRR > 0 ? Math.round((p.mrr / currentMRR) * 100) : 0 }))
+    .sort((a, b) => b.pct - a.pct)
+    .slice(0, 5);
+
+  const COLORS = ["bg-charcoal", "bg-terracotta", "bg-[#d5d0c4]", "bg-[#b5b0a4]", "bg-[#958f84]"];
+
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -9,7 +74,7 @@ export default function AnalyticsPage() {
           <h1 className="font-display text-[32px] font-medium text-charcoal tracking-tight mb-2">
             Analytics
           </h1>
-          <p className="font-body text-[16px] text-text-secondary max-w-[600px]">
+          <p className="font-body text-[16px] text-text-secondary max-w-150">
             Deep dive into your revenue metrics, user retention, and contract interactions.
           </p>
         </div>
@@ -29,12 +94,12 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <span className="font-ui text-[13px] font-semibold text-text-secondary uppercase tracking-wider block">Avg Rev Per User</span>
-              <span className="font-mono text-[24px] text-charcoal font-medium">$14.80</span>
+              <span className="font-mono text-[24px] text-charcoal font-medium">{formatUSD(arpu, 2)}</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 font-ui text-[13px]">
-            <TrendingUp className="w-4 h-4 text-[#28C840]" />
-            <span className="text-[#28C840] font-medium">+2.1%</span>
+            {arpuGrowth >= 0 ? <TrendingUp className="w-4 h-4 text-[#28C840]" /> : <TrendingDown className="w-4 h-4 text-terracotta" />}
+            <span className={arpuGrowth >= 0 ? "text-[#28C840] font-medium" : "text-terracotta font-medium"}>{arpuGrowth >= 0 ? "+" : ""}{arpuGrowth.toFixed(1)}%</span>
             <span className="text-text-muted">vs previous period</span>
           </div>
         </div>
@@ -46,12 +111,12 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <span className="font-ui text-[13px] font-semibold text-text-secondary uppercase tracking-wider block">Customer LTV</span>
-              <span className="font-mono text-[24px] text-charcoal font-medium">$285.00</span>
+              <span className="font-mono text-[24px] text-charcoal font-medium">{formatUSD(ltv, 2)}</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 font-ui text-[13px]">
-            <TrendingUp className="w-4 h-4 text-[#28C840]" />
-            <span className="text-[#28C840] font-medium">+15.3%</span>
+            {newGrowth >= 0 ? <TrendingUp className="w-4 h-4 text-[#28C840]" /> : <TrendingDown className="w-4 h-4 text-terracotta" />}
+            <span className={newGrowth >= 0 ? "text-[#28C840] font-medium" : "text-terracotta font-medium"}>{newGrowth >= 0 ? "+" : ""}{newGrowth.toFixed(1)}%</span>
             <span className="text-text-muted">vs previous period</span>
           </div>
         </div>
@@ -63,12 +128,12 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <span className="font-ui text-[13px] font-semibold text-text-secondary uppercase tracking-wider block">Net Retention</span>
-              <span className="font-mono text-[24px] text-charcoal font-medium">104%</span>
+              <span className="font-mono text-[24px] text-charcoal font-medium">{churnRate.toFixed(1)}%</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 font-ui text-[13px]">
-            <TrendingDown className="w-4 h-4 text-terracotta" />
-            <span className="text-terracotta font-medium">-1.2%</span>
+            {churnDelta <= 0 ? <TrendingDown className="w-4 h-4 text-[#28C840]" /> : <TrendingUp className="w-4 h-4 text-terracotta" />}
+            <span className={churnDelta <= 0 ? "text-[#28C840] font-medium" : "text-terracotta font-medium"}>{churnDelta >= 0 ? "+" : ""}{churnDelta.toFixed(1)}%</span>
             <span className="text-text-muted">vs previous period</span>
           </div>
         </div>
@@ -96,21 +161,23 @@ export default function AnalyticsPage() {
             <h2 className="font-display text-[20px] font-medium text-charcoal">Revenue by Plan</h2>
           </div>
           <div className="flex-1 flex flex-col justify-center gap-6 py-4">
-            {[
-              { name: "Pro Tier", pct: 65, color: "bg-charcoal" },
-              { name: "Business", pct: 25, color: "bg-terracotta" },
-              { name: "Starter", pct: 10, color: "bg-[#d5d0c4]" },
-            ].map((plan, i) => (
-              <div key={i}>
-                <div className="flex justify-between font-ui text-[14px] mb-2">
-                  <span className="text-charcoal font-medium">{plan.name}</span>
-                  <span className="text-text-secondary">{plan.pct}%</span>
-                </div>
-                <div className="w-full h-3 bg-[#f5f3ec] rounded-full overflow-hidden">
-                  <div className={`h-full ${plan.color} rounded-full`} style={{ width: `${plan.pct}%` }} />
-                </div>
+            {planBreakdown.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center py-8">
+                <p className="font-ui text-[14px] text-text-muted">No subscriber data yet.</p>
               </div>
-            ))}
+            ) : (
+              planBreakdown.map((plan, i) => (
+                <div key={plan.name}>
+                  <div className="flex justify-between font-ui text-[14px] mb-2">
+                    <span className="text-charcoal font-medium">{plan.name}</span>
+                    <span className="text-text-secondary">{plan.pct}%</span>
+                  </div>
+                  <div className="w-full h-3 bg-[#f5f3ec] rounded-full overflow-hidden">
+                    <div className={`h-full ${COLORS[i] ?? "bg-charcoal"} rounded-full`} style={{ width: `${plan.pct}%` }} />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -118,3 +185,4 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+

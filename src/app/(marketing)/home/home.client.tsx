@@ -6,8 +6,14 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { HeroCanvas } from "@/components/HeroCanvas";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const TECH_STACK = [
+  "Polygon", "USDC", "ERC-1155", "Viem", "Wagmi",
+  "Hardhat", "OpenZeppelin", "Supabase", "Vercel", "Next.js", "TypeScript", "Tailwind CSS v4",
+];
 
 const FEATURES = [
   {
@@ -153,13 +159,22 @@ export default function Home() {
       },
     });
 
+    // Fix: use rotation + scale only — avoid y conflict with yPercent parallax
     gsap.to(".hero-logo-bg", {
-      rotation: 5,
-      y: -20,
-      duration: 6,
+      rotation: 6,
+      scale: 1.05,
+      duration: 8,
       repeat: -1,
       yoyo: true,
-      ease: "sine.inOut"
+      ease: "sine.inOut",
+    });
+
+    // Marquee infinite scroll
+    gsap.to(".marquee-track", {
+      x: "-50%",
+      duration: 40,
+      ease: "none",
+      repeat: -1,
     });
 
   }, { scope: containerRef });
@@ -170,10 +185,13 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 1: Hero
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-36 lg:pt-52 pb-24 lg:pb-40 min-h-screen flex flex-col justify-center">
-        
+      <section className="relative w-full max-w-360 mx-auto px-6 lg:px-12 pt-36 lg:pt-52 pb-24 lg:pb-40 min-h-screen flex flex-col justify-center overflow-hidden">
+
+        {/* Three.js waving grid canvas */}
+        <HeroCanvas />
+
         {/* Background Logo Element */}
-        <div className="hero-logo-bg absolute top-1/2 left-2/3 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-[0.04] pointer-events-none z-0">
+        <div className="hero-logo-bg absolute top-1/2 left-2/3 -translate-y-1/2 -translate-x-1/2 w-150 h-150 lg:w-200 lg:h-200 opacity-[0.04] pointer-events-none z-0">
           <Image 
             src="/transparentLogo.png" 
             alt="VREN Logo Background" 
@@ -208,10 +226,10 @@ export default function Home() {
               <div className="w-12 h-12 relative">
                 <Image src="/transparentLogo.png" alt="VREN Mark" fill className="object-contain" />
               </div>
-              <div className="h-px flex-1 bg-gradient-to-r from-border-subtle to-transparent" />
+              <div className="h-px flex-1 bg-linear-to-r from-border-subtle to-transparent" />
             </div>
 
-            <p className="hero-sub font-body text-[20px] lg:text-[24px] leading-[1.5] text-charcoal mb-10 text-balance opacity-0">
+            <p className="hero-sub font-body text-[20px] lg:text-[24px] leading-normal text-charcoal mb-10 text-balance opacity-0">
               VREN is the payment infrastructure layer for builders the traditional financial system decided to exclude. We replace closed networks with open smart contracts so that any developer, anywhere, can capture the value they create.
             </p>
 
@@ -250,7 +268,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 2: The Problem
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+      <section className="w-full max-w-360 mx-auto px-6 lg:px-12 py-24 lg:py-32">
         <div className="grow-line w-full h-px bg-border-subtle mb-16" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
           <div className="lg:col-span-5 scroll-reveal">
@@ -275,7 +293,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 3: Features
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+      <section className="w-full max-w-360 mx-auto px-6 lg:px-12 py-24 lg:py-32">
         <div className="grow-line w-full h-px bg-border-subtle mb-16" />
         <div className="mb-16 scroll-reveal">
           <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold mb-6 block">
@@ -300,7 +318,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 4: Code Integration
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+      <section className="w-full max-w-300 mx-auto px-6 lg:px-12 py-24 lg:py-32">
         <div className="scroll-reveal grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border-subtle rounded-2xl overflow-hidden bg-white shadow-[0_16px_48px_rgba(25,25,24,0.06)]">
 
           {/* Left: Copy */}
@@ -328,11 +346,11 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
                 <div className="w-3 h-3 rounded-full bg-[#28C840]" />
               </div>
-              <div className="ml-6 font-mono text-[11px] text-[#666666] tracking-[0.1em] uppercase">app.tsx</div>
+              <div className="ml-6 font-mono text-[11px] text-[#666666] tracking-widest uppercase">app.tsx</div>
             </div>
             <div className="p-8 lg:p-10 flex-1 flex flex-col justify-center">
               <pre className="font-mono text-[13px] lg:text-[14px] leading-[1.85] text-[#e0e0e0] overflow-x-auto whitespace-pre">
-<span className="text-[#6a9bcc]">import</span>{" { useGate } "}<span className="text-[#6a9bcc]">from</span>{" "}<span className="text-[#788c5d]">{'"@vren/sdk/react"'}</span>{";\n\n"}<span className="text-[#d97757]">function</span>{" "}<span className="text-white">PremiumDashboard</span>{"() {\n  "}<span className="text-[#d97757]">const</span>{" { data } = "}<span className="text-[#c9a07c]">useGate</span>{"("}<span className="text-[#788c5d]">{'"pro"'}</span>{");\n\n  "}<span className="text-[#d97757]">if</span>{" (!data?.access) "}<span className="text-[#d97757]">return</span>{" <UpgradePrompt />;\n  "}<span className="text-[#d97757]">return</span>{" <Dashboard />;\n}"}
+<span className="text-sky">import</span>{" { useGate } "}<span className="text-sky">from</span>{" "}<span className="text-sage">{'"@vren/sdk/react"'}</span>{";\n\n"}<span className="text-terracotta">function</span>{" "}<span className="text-white">PremiumDashboard</span>{"() {\n  "}<span className="text-terracotta">const</span>{" { data } = "}<span className="text-warm-gold">useGate</span>{"("}<span className="text-sage">{'"pro"'}</span>{");\n\n  "}<span className="text-terracotta">if</span>{" (!data?.access) "}<span className="text-terracotta">return</span>{" <UpgradePrompt />;\n  "}<span className="text-terracotta">return</span>{" <Dashboard />;\n}"}
               </pre>
             </div>
           </div>
@@ -342,7 +360,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 5: Stats Band
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-16 lg:py-20">
+      <section className="w-full max-w-360 mx-auto px-6 lg:px-12 py-16 lg:py-20">
         <div className="grow-line w-full h-px bg-border-subtle mb-16" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {STATS.map((s) => (
@@ -355,11 +373,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ══════════════ BUILT ON OPEN INFRASTRUCTURE ══════════════ */}
+      <div className="w-full border-y border-border-subtle py-5 overflow-hidden bg-cream/50">
+        <div className="marquee-track flex w-max">
+          {[...TECH_STACK, ...TECH_STACK].map((item, i) => (
+            <span
+              key={i}
+              className="flex items-center gap-6 px-8 font-ui text-[12px] text-text-muted uppercase tracking-[0.18em] font-semibold whitespace-nowrap"
+            >
+              {item}
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone/40" />
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 6: Use Cases (Dark Band)
       ═══════════════════════════════════════════════════════════════ */}
       <section className="w-full bg-charcoal text-parchment py-28 lg:py-40">
-        <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12">
+        <div className="w-full max-w-360 mx-auto px-6 lg:px-12">
           <div className="mb-20 scroll-reveal">
             <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-stone font-bold mb-6 block">
               Capabilities
@@ -381,9 +414,57 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════
+          COMPARISON TABLE
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="w-full max-w-360 mx-auto px-6 lg:px-12 py-24 lg:py-32">
+        <div className="grow-line w-full h-px bg-border-subtle mb-16" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 mb-14 scroll-reveal">
+          <div className="lg:col-span-5">
+            <span className="font-ui text-[11px] tracking-[0.2em] uppercase text-terracotta font-bold mb-6 block">Why VREN</span>
+            <h2 className="font-display text-[40px] lg:text-[56px] leading-[1.08] tracking-tight text-charcoal">Built differently.</h2>
+          </div>
+          <div className="lg:col-span-7 flex items-end">
+            <p className="font-body text-[18px] lg:text-[20px] text-text-secondary leading-[1.55]">
+              Every other payment rail was designed for a world with borders. VREN was designed for the internet.
+            </p>
+          </div>
+        </div>
+        <div className="scroll-reveal overflow-x-auto rounded-2xl border border-border-subtle shadow-sm">
+          <table className="w-full min-w-150 text-left border-collapse">
+            <thead>
+              <tr className="border-b border-border-subtle">
+                <th className="px-5 py-4 bg-cream/80 font-ui text-[11px] text-text-muted uppercase tracking-wider">Feature</th>
+                <th className="px-5 py-4 bg-terracotta/8 border-l-2 border-terracotta/40 font-ui text-[13px] font-bold text-terracotta">VREN</th>
+                <th className="px-5 py-4 bg-cream/80 font-ui text-[13px] font-semibold text-charcoal">Stripe / Traditional</th>
+                <th className="px-5 py-4 bg-cream/80 font-ui text-[13px] font-semibold text-charcoal">Generic Crypto</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-subtle">
+              {[
+                ["KYC Required",          "No",                  "Yes — full review",        "No"],
+                ["Country restrictions",  "None",                "60+ countries blocked",    "None"],
+                ["Settlement speed",      "Instant",             "3–7 business days",        "Instant"],
+                ["Platform fee",          "1.5% flat ceiling",   "2.9% + $0.30 per txn",    "Gas cost only"],
+                ["Open source",           "Fully open",          "Proprietary",              "Varies"],
+                ["Subscription NFTs",     "ERC-1155 built-in",   "Not available",            "Build it yourself"],
+                ["Vendor lock-in",        "None",                "API + pricing lock-in",    "None"],
+              ].map(([feature, vren, stripe, crypto], i) => (
+                <tr key={feature} className={i % 2 === 0 ? "bg-white" : "bg-parchment/40"}>
+                  <td className="px-5 py-4 font-ui text-[13px] font-semibold text-charcoal">{feature}</td>
+                  <td className="px-5 py-4 font-body text-[14px] text-charcoal bg-terracotta/4 border-l-2 border-terracotta/20 font-medium">{vren}</td>
+                  <td className="px-5 py-4 font-body text-[14px] text-text-secondary">{stripe}</td>
+                  <td className="px-5 py-4 font-body text-[14px] text-text-secondary">{crypto}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
           SECTION 7: How It Works
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-28 lg:py-40">
+      <section className="w-full max-w-360 mx-auto px-6 lg:px-12 py-28 lg:py-40">
         <div className="grow-line w-full h-px bg-border-subtle mb-16" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 mb-20 scroll-reveal">
           <div className="lg:col-span-5">
@@ -421,7 +502,7 @@ export default function Home() {
           SECTION 8: CTA Band
       ═══════════════════════════════════════════════════════════════ */}
       <section className="w-full bg-charcoal">
-        <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-28 lg:py-36">
+        <div className="w-full max-w-360 mx-auto px-6 lg:px-12 py-28 lg:py-36">
           <div className="scroll-reveal flex flex-col items-center text-center">
             <h2 className="font-display text-[40px] lg:text-[64px] leading-[1.05] tracking-tight text-parchment max-w-3xl mb-8">
               Your product deserves a payment layer that does not discriminate.
