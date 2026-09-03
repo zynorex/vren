@@ -118,28 +118,6 @@ export default async function SubscribersPage() {
                   </td>
                 </tr>
               ))}
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-linear-to-br from-charcoal to-terracotta opacity-80 flex items-center justify-center shadow-inner">
-                        <span className="font-ui text-[10px] text-white font-bold">{sub.wallet.slice(2,4)}</span>
-                      </div>
-                      <span className="font-mono text-[14px] text-charcoal">{sub.wallet}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5 font-ui text-[14px] text-charcoal font-medium">{sub.plan}</td>
-                  <td className="py-4 px-5">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full font-ui text-[11px] font-semibold uppercase tracking-wider ${sub.status === 'Active' ? 'bg-[#eefcf0] text-[#28C840]' : 'bg-[#f5f5f5] text-text-muted'}`}>
-                      {sub.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 font-mono text-[13px] text-text-secondary">{sub.joined}</td>
-                  <td className="py-4 px-5 font-mono text-[14px] text-charcoal text-right">{sub.ltv}</td>
-                  <td className="py-4 px-5 text-right">
-                    <button className="p-2 text-text-muted hover:text-charcoal hover:bg-white rounded-md transition-all opacity-0 group-hover:opacity-100 shadow-sm border border-transparent group-hover:border-border-subtle">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
             </tbody>
           </table>
         </div>

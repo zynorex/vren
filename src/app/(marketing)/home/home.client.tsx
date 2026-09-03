@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { HeroCanvas } from "@/components/HeroCanvas";
+import { SubscriptionCard } from "@/components/SubscriptionCard";
+import { CodeWorkbench } from "@/components/CodeWorkbench";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,21 +21,25 @@ const FEATURES = [
   {
     num: "01",
     title: "Permissionless Onboarding",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
     body: "There is no application process. No KYC form. No manual review queue. You deploy a smart contract to Polygon, register your application on the VREN registry, and your payment infrastructure is live. The entire process takes less than three minutes.",
   },
   {
     num: "02",
     title: "Instant Settlement",
+    icon: "M13 10V3L4 14h7v7l9-11h-7z",
     body: "When a user subscribes, USDC flows directly to your designated payout wallet within the same block. There is no seven day hold period, no minimum balance requirement, and no intermediary bank sitting between you and the money your product earned.",
   },
   {
     num: "03",
     title: "Global by Default",
+    icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
     body: "VREN operates on public blockchains. There are no supported country lists, no currency conversion intermediaries, and no arbitrary sanctions on where talent is allowed to exist. If your users have a wallet, they can pay you. Period.",
   },
   {
     num: "04",
     title: "Transparent Fee Architecture",
+    icon: "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z",
     body: "The platform fee is a flat 1.5 percent, hardcoded into the smart contract with a maximum ceiling of 10 percent that can never be exceeded. You can read the Solidity source yourself. There are no hidden charges.",
   },
 ];
@@ -90,6 +96,11 @@ export default function Home() {
         { y: 20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: "expo.out" },
         1.2
+      )
+      .fromTo(".hero-card",
+        { y: 40, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "expo.out" },
+        1.0
       );
 
     // Scroll triggered sections
@@ -201,9 +212,9 @@ export default function Home() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start relative z-10">
 
-          {/* Left: Headline */}
+          {/* Left: Headline + CTAs */}
           <div className="lg:col-span-7 flex flex-col">
             <div className="flex items-center gap-3 mb-10 opacity-0 hero-line">
               <span className="w-10 h-px bg-terracotta" />
@@ -216,21 +227,9 @@ export default function Home() {
               <span className="hero-line block overflow-hidden">Your revenue.</span>
               <span className="hero-line block overflow-hidden text-terracotta">Your terms.</span>
             </h1>
-          </div>
 
-          {/* Right: Subtext and CTAs */}
-          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-10">
-            
-            {/* Visual Logo Lockup beside text on desktop */}
-            <div className="hidden lg:flex items-center gap-4 mb-8 opacity-0 hero-sub">
-              <div className="w-12 h-12 relative">
-                <Image src="/transparentLogo.png" alt="VREN Mark" fill className="object-contain" />
-              </div>
-              <div className="h-px flex-1 bg-linear-to-r from-border-subtle to-transparent" />
-            </div>
-
-            <p className="hero-sub font-body text-[20px] lg:text-[24px] leading-normal text-charcoal mb-10 text-balance opacity-0">
-              VREN is the payment infrastructure layer for builders the traditional financial system decided to exclude. We replace closed networks with open smart contracts so that any developer, anywhere, can capture the value they create.
+            <p className="hero-sub font-body text-[18px] lg:text-[22px] leading-normal text-text-secondary mt-10 mb-10 max-w-xl text-balance opacity-0">
+              Open payment infrastructure on Polygon. Accept USDC subscriptions with no KYC, no intermediaries, and instant settlement.
             </p>
 
             <div className="flex flex-col sm:flex-row items-start gap-4 hero-cta opacity-0">
@@ -262,6 +261,11 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Right: Live Product Preview */}
+          <div className="lg:col-span-5 flex justify-center lg:justify-end lg:pt-8">
+            <SubscriptionCard />
+          </div>
         </div>
       </section>
 
@@ -279,12 +283,35 @@ export default function Home() {
               The geographic lottery of global finance.
             </h2>
           </div>
-          <div className="lg:col-span-7 flex flex-col gap-10 scroll-reveal">
-            <p className="font-body text-[19px] lg:text-[22px] text-text-secondary leading-[1.55]">
-              We observed a structural flaw in the internet economy. Your ability to capture the value you create is entirely dependent on where you were born. Traditional payment infrastructure excludes over 60 countries, arbitrarily blocking millions of developers from monetizing their work. Not because their products are inferior. Not because their code is substandard. But because they were born on the wrong side of a banking regulation.
+          <div className="lg:col-span-7 flex flex-col gap-8 scroll-reveal">
+            <p className="font-body text-[19px] lg:text-[21px] text-text-secondary leading-[1.55]">
+              Traditional payment infrastructure forces developers into a geographic lottery. Where you were born dictates whether you're allowed to accept payment for your software.
             </p>
-            <p className="font-body text-[19px] lg:text-[22px] text-text-secondary leading-[1.55]">
-              VREN was built to eliminate that dependency. We replaced the closed, permissioned infrastructure of legacy finance with open, composable smart contracts on Polygon. The result is a payment layer where the quality of your product is the only variable that determines your success.
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-6 rounded-xl border border-terracotta/20 bg-terracotta/5 flex flex-col justify-between">
+                <span className="font-mono text-[11px] uppercase tracking-wider text-terracotta font-semibold">Exclusion</span>
+                <div className="my-4">
+                  <span className="font-display text-[32px] text-charcoal font-medium">60+</span>
+                  <p className="font-ui text-[12px] text-text-secondary mt-1">Countries blocked by legacy payment gateways</p>
+                </div>
+              </div>
+              <div className="p-6 rounded-xl border border-border-subtle bg-white shadow-xs flex flex-col justify-between">
+                <span className="font-mono text-[11px] uppercase tracking-wider text-text-muted font-semibold">Payout Friction</span>
+                <div className="my-4">
+                  <span className="font-display text-[32px] text-charcoal font-medium">7–14d</span>
+                  <p className="font-ui text-[12px] text-text-secondary mt-1">Average bank settlement delay & hold periods</p>
+                </div>
+              </div>
+              <div className="p-6 rounded-xl border border-border-subtle bg-white shadow-xs flex flex-col justify-between">
+                <span className="font-mono text-[11px] uppercase tracking-wider text-text-muted font-semibold">Hidden Rake</span>
+                <div className="my-4">
+                  <span className="font-display text-[32px] text-charcoal font-medium">3.5%+</span>
+                  <p className="font-ui text-[12px] text-text-secondary mt-1">Combined transaction & cross-border fees</p>
+                </div>
+              </div>
+            </div>
+            <p className="font-body text-[17px] text-text-secondary leading-[1.6]">
+              VREN replaces closed, permissioned legacy networks with open smart contracts on Polygon. The quality of your software is the only variable that determines your revenue.
             </p>
           </div>
         </div>
@@ -306,8 +333,15 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-0">
           {FEATURES.map((f) => (
-            <div key={f.num} className="feature-card flex flex-col border-t border-border-subtle pt-8 pb-12 group opacity-0">
-              <span className="font-mono text-[12px] text-text-muted mb-5 group-hover:text-terracotta transition-colors duration-300">{f.num}</span>
+            <div key={f.num} className="feature-card flex flex-col border-t border-border-subtle pt-8 pb-12 group opacity-0 transition-all duration-300 hover:-translate-y-1 relative pl-0 hover:pl-4">
+              {/* Hover accent bar */}
+              <div className="absolute left-0 top-8 bottom-12 w-[2px] bg-terracotta scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+              <div className="flex items-center gap-3 mb-5">
+                <svg className="w-5 h-5 text-terracotta/70 group-hover:text-terracotta transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={f.icon} />
+                </svg>
+                <span className="font-mono text-[12px] text-text-muted group-hover:text-terracotta transition-colors duration-300">{f.num}</span>
+              </div>
               <h3 className="font-display text-[24px] lg:text-[28px] text-charcoal mb-4 tracking-tight">{f.title}</h3>
               <p className="font-body text-[17px] text-text-secondary leading-[1.65]">{f.body}</p>
             </div>
@@ -338,22 +372,8 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Right: Terminal */}
-          <div className="bg-[#161616] flex flex-col">
-            <div className="w-full h-12 border-b border-[#2a2a2a] flex items-center px-6">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
-                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-                <div className="w-3 h-3 rounded-full bg-[#28C840]" />
-              </div>
-              <div className="ml-6 font-mono text-[11px] text-[#666666] tracking-widest uppercase">app.tsx</div>
-            </div>
-            <div className="p-8 lg:p-10 flex-1 flex flex-col justify-center">
-              <pre className="font-mono text-[13px] lg:text-[14px] leading-[1.85] text-[#e0e0e0] overflow-x-auto whitespace-pre">
-<span className="text-sky">import</span>{" { useGate } "}<span className="text-sky">from</span>{" "}<span className="text-sage">{'"@vren/sdk/react"'}</span>{";\n\n"}<span className="text-terracotta">function</span>{" "}<span className="text-white">PremiumDashboard</span>{"() {\n  "}<span className="text-terracotta">const</span>{" { data } = "}<span className="text-warm-gold">useGate</span>{"("}<span className="text-sage">{'"pro"'}</span>{");\n\n  "}<span className="text-terracotta">if</span>{" (!data?.access) "}<span className="text-terracotta">return</span>{" <UpgradePrompt />;\n  "}<span className="text-terracotta">return</span>{" <Dashboard />;\n}"}
-              </pre>
-            </div>
-          </div>
+          {/* Right: Interactive Code Workbench */}
+          <CodeWorkbench />
         </div>
       </section>
 
@@ -434,7 +454,12 @@ export default function Home() {
             <thead>
               <tr className="border-b border-border-subtle">
                 <th className="px-5 py-4 bg-cream/80 font-ui text-[11px] text-text-muted uppercase tracking-wider">Feature</th>
-                <th className="px-5 py-4 bg-terracotta/8 border-l-2 border-terracotta/40 font-ui text-[13px] font-bold text-terracotta">VREN</th>
+                <th className="px-5 py-4 bg-terracotta/8 border-l-2 border-terracotta/40 font-ui text-[13px] font-bold text-terracotta shadow-[inset_0_0_20px_rgba(217,119,87,0.06)]">
+                  <div className="flex items-center gap-2">
+                    VREN
+                    <span className="font-ui text-[9px] font-bold uppercase tracking-wider bg-terracotta text-white px-2 py-0.5 rounded-full">Recommended</span>
+                  </div>
+                </th>
                 <th className="px-5 py-4 bg-cream/80 font-ui text-[13px] font-semibold text-charcoal">Stripe / Traditional</th>
                 <th className="px-5 py-4 bg-cream/80 font-ui text-[13px] font-semibold text-charcoal">Generic Crypto</th>
               </tr>
@@ -451,7 +476,12 @@ export default function Home() {
               ].map(([feature, vren, stripe, crypto], i) => (
                 <tr key={feature} className={i % 2 === 0 ? "bg-white" : "bg-parchment/40"}>
                   <td className="px-5 py-4 font-ui text-[13px] font-semibold text-charcoal">{feature}</td>
-                  <td className="px-5 py-4 font-body text-[14px] text-charcoal bg-terracotta/4 border-l-2 border-terracotta/20 font-medium">{vren}</td>
+                  <td className="px-5 py-4 font-body text-[14px] text-charcoal bg-terracotta/4 border-l-2 border-terracotta/20 font-medium">
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5 text-sage shrink-0" viewBox="0 0 16 16" fill="none"><path d="M2 8.5L6 12.5L14 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      {vren}
+                    </span>
+                  </td>
                   <td className="px-5 py-4 font-body text-[14px] text-text-secondary">{stripe}</td>
                   <td className="px-5 py-4 font-body text-[14px] text-text-secondary">{crypto}</td>
                 </tr>
@@ -501,8 +531,12 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 8: CTA Band
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="w-full bg-charcoal">
-        <div className="w-full max-w-360 mx-auto px-6 lg:px-12 py-28 lg:py-36">
+      <section className="w-full bg-charcoal relative overflow-hidden">
+        {/* Ambient dot grid */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        {/* Terracotta radial glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-terracotta/[0.06] rounded-full blur-[100px] pointer-events-none" />
+        <div className="w-full max-w-360 mx-auto px-6 lg:px-12 py-28 lg:py-36 relative z-10">
           <div className="scroll-reveal flex flex-col items-center text-center">
             <h2 className="font-display text-[40px] lg:text-[64px] leading-[1.05] tracking-tight text-parchment max-w-3xl mb-8">
               Your product deserves a payment layer that does not discriminate.

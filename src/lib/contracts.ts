@@ -17,6 +17,8 @@ export const VREN_SUBSCRIPTION_ABI = parseAbi([
   "function createPlan(bytes32 appId, uint256 planId, uint256 price, uint256 duration) external",
   "function updatePlan(bytes32 appId, uint256 planId, uint256 price, uint256 duration, bool active) external",
   "function subscribe(bytes32 appId, uint256 planId) external",
+  "function cancel(bytes32 appId) external",
+  "function cancelSubscription(bytes32 appId, address subscriber) external",
   "function pause() external",
   "function unpause() external",
   "function setTreasury(address _newTreasury) external",
@@ -25,7 +27,9 @@ export const VREN_SUBSCRIPTION_ABI = parseAbi([
   "event PlanCreated(bytes32 indexed appId, uint256 indexed planId, uint256 price, uint256 duration)",
   "event PlanUpdated(bytes32 indexed appId, uint256 indexed planId, uint256 price, uint256 duration, bool active)",
   "event Subscribed(bytes32 indexed appId, address indexed subscriber, uint256 indexed planId, uint256 tokenId, uint256 expiry)",
+  "event Cancelled(bytes32 indexed appId, address indexed subscriber, address indexed cancelledBy)",
   "event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury)",
+  "event PlatformFeeUpdated(uint256 oldFee, uint256 newFee)",
 ]);
 
 export const VREN_REGISTRY_ABI = parseAbi([

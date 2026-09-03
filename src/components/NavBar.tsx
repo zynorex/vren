@@ -6,6 +6,7 @@ import Image from "next/image";
 
 export function NavBar() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,12 +87,70 @@ export function NavBar() {
 
           <div className="w-4 hidden lg:block"></div>
 
-          {/* Login Button */}
-          <Link href="/login" className="flex items-center h-10 px-5 bg-charcoal text-parchment font-ui text-[15px] font-medium rounded-lg shadow-sm hover:bg-[#2b2a27] hover:-translate-y-[1px] hover:shadow-md transition-all cursor-pointer">
+          {/* Desktop Login Button */}
+          <Link href="/login" className="hidden lg:flex items-center h-10 px-5 bg-charcoal text-parchment font-ui text-[15px] font-medium rounded-lg shadow-sm hover:bg-[#2b2a27] hover:-translate-y-[1px] hover:shadow-md transition-all cursor-pointer">
             Login
           </Link>
+
+          {/* Mobile Hamburger Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 text-charcoal hover:text-terracotta focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-x-0 top-[68px] bg-parchment border-b border-border-subtle p-6 flex flex-col gap-4 shadow-xl z-50">
+          <Link
+            href="/how-it-works"
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-body text-[20px] text-charcoal hover:text-terracotta transition-colors"
+          >
+            How It Works
+          </Link>
+          <Link
+            href="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-body text-[20px] text-charcoal hover:text-terracotta transition-colors"
+          >
+            About
+          </Link>
+          <Link
+            href="/dev-docs"
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-body text-[20px] text-charcoal hover:text-terracotta transition-colors"
+          >
+            Developers & Docs
+          </Link>
+          <Link
+            href="/pricing"
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-body text-[20px] text-charcoal hover:text-terracotta transition-colors"
+          >
+            Pricing
+          </Link>
+          <div className="pt-2 border-t border-border-subtle">
+            <Link
+              href="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-center h-12 w-full bg-charcoal text-parchment font-ui text-[15px] font-medium rounded-lg shadow-sm"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

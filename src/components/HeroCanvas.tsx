@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
+// @ts-ignore
+import * as THREE_MODULE from "three";
+const THREE = THREE_MODULE as any;
 
 /**
  * Three.js waving wireframe grid — subtle decorative background for the hero section.
@@ -18,7 +20,7 @@ export function HeroCanvas() {
     let H = mount.clientHeight;
 
     // Bail silently if WebGL is unavailable
-    let renderer: THREE.WebGLRenderer;
+    let renderer: any;
     try {
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     } catch {
@@ -48,7 +50,7 @@ export function HeroCanvas() {
     scene.add(mesh);
 
     // Cache base Z values to apply wave on top
-    const posAttr = geometry.attributes.position as THREE.BufferAttribute;
+    const posAttr = geometry.attributes.position as any;
     const baseZ = new Float32Array(posAttr.count);
     for (let i = 0; i < posAttr.count; i++) {
       baseZ[i] = posAttr.getZ(i);
