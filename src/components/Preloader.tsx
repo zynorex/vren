@@ -36,31 +36,31 @@ export function Preloader() {
       scale: 1,
       opacity: 1,
       y: 0,
-      duration: 1.4,
+      duration: 0.7,
       ease: "power3.out"
     })
     .to(textRef.current, {
       opacity: 1,
       y: 0,
       filter: "blur(0px)",
-      duration: 0.8,
+      duration: 0.4,
       ease: "power2.out"
-    }, "-=0.8")
+    }, "-=0.4")
     .to(progressRef.current, {
       scaleX: 1,
-      duration: 1.6,
+      duration: 0.8,
       ease: "power4.inOut"
-    }, "-=0.4")
+    }, "-=0.2")
     .to([logoRef.current, textRef.current, progressRef.current], {
-      y: -40,
+      y: -30,
       opacity: 0,
-      duration: 0.6,
-      stagger: 0.1,
+      duration: 0.3,
+      stagger: 0.05,
       ease: "power2.in"
-    }, "+=0.3")
+    }, "+=0.1")
     .to(containerRef.current, {
       yPercent: -100,
-      duration: 1.2,
+      duration: 0.6,
       ease: "expo.inOut"
     });
 

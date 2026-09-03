@@ -1,10 +1,25 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+/**
+ * VREN Middleware — Route Protection
+ *
+ * Protects dashboard routes and API endpoints.
+ * Uses raw cookie checks (not NextAuth imports) to stay Edge-compatible.
+ *
+ * NextAuth v5 (Auth.js) uses these cookie names:
+ * - Development: "authjs.session-token"
+ * - Production (HTTPS): "__Secure-authjs.session-token"
+ *
+ * SECURITY:
+ * - Cookie-only check (no DB call in middleware — keeps it fast)
+ * - Protected API routes return 401, not redirect
+ * - Login page redirects authenticated users to dashboard
+ */
 export function middleware(req: NextRequest) {
   // NextAuth sets different cookie names in development vs production
-  const isAuthenticated = 
-    req.cookies.has("authjs.session-token") || 
+  const isAuthenticated =
+    req.cookies.has("authjs.session-token") ||
     req.cookies.has("__Secure-authjs.session-token");
 
   const { pathname } = req.nextUrl;
@@ -46,6 +61,14 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (NextAuth routes — must be publicly accessible)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico
+     * - logo.png
+     */
     "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.png).*)",
   ],
 };

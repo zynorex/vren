@@ -98,17 +98,129 @@ export async function POST(req: Request) {
             eventType,
           },
         });
+
+        // Record the transaction for dashboard display
+        await prisma.transaction.create({
+          data: {
+            transactionHash,
+            type: "new_subscription",
+            usdcAmount: plan.price,
+            wallet: subscriber.toLowerCase(),
+            tokenId: tokenId ? String(tokenId) : null,
+            appId: app.id,
+            planId: plan.id,
+          },
+        });
       });
 
       return NextResponse.json({ message: "Subscription processed successfully" });
     }
 
-    // ... Handle other events like PlanCreated, AppRegistered here ...
+    // ── Cancelled ────────────────────────────────────────────────────
+    if (eventType === "Cancelled") {
+      const { appId, subscriber, cancelledBy } = data;
 
-    return NextResponse.json({ message: "Event ignored" });
+      const app = await db.app.findUnique({
+        where: { contractId: appId },
+      });
+
+      if (!app) {
+        throw new Error(`App with contractId ${appId} not found in database`);
+      }
+
+      await db.$transaction(async (prisma: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
+        // Deactivate the subscriber record (preserve expiry for grace period)
+        await prisma.subscriber.updateMany({
+          where: {
+            appId: app.id,
+            wallet: subscriber.toLowerCase(),
+            active: true,
+          },
+          data: {
+            active: false,
+          },
+        });
+
+        // Record the idempotency event
+        await prisma.webhookEvent.create({
+          data: {
+            transactionHash,
+            eventType,
+          },
+        });
+
+        // Record the cancellation transaction for dashboard display
+        await prisma.transaction.create({
+          data: {
+            transactionHash,
+            type: "cancelled",
+            wallet: subscriber.toLowerCase(),
+            appId: app.id,
+          },
+        });
+      });
+
+      return NextResponse.json({ message: "Cancellation processed successfully" });
+    }
+
+    // ── PlanCreated ──────────────────────────────────────────────────
+    if (eventType === "PlanCreated") {
+      const { appId, planId, price, duration } = data;
+
+      const app = await db.app.findUnique({
+        where: { contractId: appId },
+      });
+
+      if (!app) {
+        throw new Error(`App with contractId ${appId} not found in database`);
+      }
+
+      await db.$transaction(async (prisma: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
+        // Upsert the Plan record from on-chain data
+        await prisma.plan.upsert({
+          where: {
+            appId_onchainIdx: {
+              appId: app.id,
+              onchainIdx: Number(planId),
+            },
+          },
+          update: {
+            price: String(price),
+            duration: Number(duration),
+            active: true,
+          },
+          create: {
+            appId: app.id,
+            onchainIdx: Number(planId),
+            name: `Plan #${planId}`,
+            price: String(price),
+            duration: Number(duration),
+            active: true,
+          },
+        });
+
+        // Record the idempotency event
+        await prisma.webhookEvent.create({
+          data: {
+            transactionHash,
+            eventType,
+          },
+        });
+      });
+
+      return NextResponse.json({ message: "Plan created successfully" });
+    }
+
+    // Unrecognized event — acknowledge but don't process
+    await db.webhookEvent.create({
+      data: { transactionHash, eventType },
+    });
+
+    return NextResponse.json({ message: "Event acknowledged" });
 
   } catch (error) {
     console.error("[WEBHOOK ERROR]", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

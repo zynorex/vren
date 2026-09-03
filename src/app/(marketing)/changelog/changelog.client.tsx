@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -263,41 +263,55 @@ export default function ChangelogClient() {
   const [typeFilter, setTypeFilter] = useState<ChangeType | "all">("all");
   const [impactFilter, setImpactFilter] = useState<Impact | "all">("all");
   const [search, setSearch] = useState("");
+  const [activeVersion, setActiveVersion] = useState(RELEASES[0].version);
 
-  // Filter releases
   const filteredReleases = RELEASES.filter((release) => {
-    // Impact filter
     if (impactFilter !== "all" && release.impact !== impactFilter) return false;
-    // Search filter
     if (search) {
       const q = search.toLowerCase();
-      const matchesTitle = release.title.toLowerCase().includes(q);
-      const matchesVersion = release.version.toLowerCase().includes(q);
-      const matchesChanges = release.changes.some(
-        (c) => c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
-      );
-      if (!matchesTitle && !matchesVersion && !matchesChanges) return false;
+      if (
+        !release.title.toLowerCase().includes(q) &&
+        !release.version.toLowerCase().includes(q) &&
+        !release.changes.some(
+          (c) => c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+        )
+      )
+        return false;
     }
-    // Type filter
-    if (typeFilter !== "all") {
-      const hasType = release.changes.some((c) => c.type === typeFilter);
-      if (!hasType) return false;
-    }
+    if (typeFilter !== "all" && !release.changes.some((c) => c.type === typeFilter)) return false;
     return true;
   });
 
+  // Highlight the version currently scrolled into view in the sticky nav
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const v = entry.target.getAttribute("data-version");
+            if (v) setActiveVersion(v);
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -65% 0px", threshold: 0 }
+    );
+    document.querySelectorAll("[data-version]").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [typeFilter, impactFilter, search]);
+
   useGSAP(
     () => {
-      const tl = gsap.timeline();
-      tl.fromTo(".cl-eyebrow", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 0.1)
-        .fromTo(".cl-title", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: "expo.out" }, 0.25)
+      gsap
+        .timeline()
+        .fromTo(".cl-eyebrow",  { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 0.1)
+        .fromTo(".cl-title",    { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.0, ease: "expo.out" }, 0.22)
         .fromTo(".cl-subtitle", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 0.4)
-        .fromTo(".cl-stats", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 0.5)
-        .fromTo(".cl-controls", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 0.6);
+        .fromTo(".cl-stat",     { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "expo.out" }, 0.5)
+        .fromTo(".cl-controls", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 0.65);
 
       ScrollTrigger.batch(".release-card", {
         onEnter: (batch) =>
-          gsap.fromTo(batch, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "expo.out" }),
+          gsap.fromTo(batch, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, stagger: 0.07, ease: "expo.out" }),
         start: "top 90%",
         once: true,
       });
@@ -306,65 +320,66 @@ export default function ChangelogClient() {
   );
 
   return (
-    <div ref={containerRef} className="bg-parchment text-charcoal font-body min-h-screen pt-32 lg:pt-40 pb-28">
-      <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12">
+    <div ref={containerRef} className="min-h-screen font-body">
 
-        {/* ══════════════ HEADER ══════════════ */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 mb-12">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="cl-eyebrow inline-flex items-center gap-1.5 font-mono text-[12px] text-sage bg-[#e8f0e8] px-2.5 py-1 rounded-full opacity-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
-                LIVE
-              </span>
-              <span className="cl-eyebrow font-ui text-[12px] text-text-muted opacity-0">
-                Last updated {RELEASES[0].date}
-              </span>
-            </div>
-            <h1 className="cl-title font-display font-medium text-[48px] lg:text-[64px] leading-[1.05] tracking-tight text-charcoal mb-4 opacity-0">
-              Changelog
-            </h1>
-            <p className="cl-subtitle font-body text-[18px] lg:text-[20px] text-text-secondary leading-[1.6] max-w-lg opacity-0">
-              Track every release, fix, and security hardening across VREN.
-              Use filters to jump to what matters.
-            </p>
-          </div>
+      {/* ═══════════════════════════════════════════════════════
+          DARK HERO HEADER
+      ═══════════════════════════════════════════════════════ */}
+      <div className="w-full bg-charcoal text-parchment pt-32 lg:pt-44 pb-16 lg:pb-20">
+        <div className="w-full max-w-360 mx-auto px-6 lg:px-12">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-12 lg:gap-20">
 
-          {/* Release Health Card */}
-          <div className="cl-stats w-full lg:w-auto lg:min-w-[320px] bg-white border border-border-subtle rounded-2xl shadow-sm overflow-hidden opacity-0">
-            <div className="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
-              <span className="font-ui text-[14px] font-semibold text-charcoal">Release Health</span>
-              <span className="font-mono text-[10px] tracking-[0.1em] uppercase text-terracotta bg-terracotta/10 px-2 py-0.5 rounded-full font-bold">
-                Snapshot
-              </span>
+            {/* Left: title */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-8">
+                <span className="cl-eyebrow inline-flex items-center gap-1.5 font-mono text-[11px] text-[#6dbd6d] bg-[#6dbd6d]/10 px-2.5 py-1 rounded-full opacity-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#6dbd6d] animate-pulse" />
+                  LIVE
+                </span>
+                <span className="cl-eyebrow font-ui text-[12px] text-stone opacity-0">
+                  Last updated {RELEASES[0].date}
+                </span>
+              </div>
+              <h1
+                className="cl-title font-display font-medium leading-[0.95] tracking-tight text-parchment mb-6 opacity-0"
+                style={{ fontSize: "clamp(52px, 8vw, 96px)" }}
+              >
+                Changelog
+              </h1>
+              <p className="cl-subtitle font-body text-[18px] lg:text-[20px] text-stone leading-[1.6] max-w-xl opacity-0">
+                Every release, fix, and improvement to the VREN protocol.{" "}
+                <span className="text-parchment/60">Fully transparent — like the contracts.</span>
+              </p>
             </div>
-            <div className="grid grid-cols-2 divide-x divide-y divide-border-subtle">
-              <div className="px-5 py-4">
-                <p className="font-ui text-[11px] text-text-muted uppercase tracking-wider mb-1">Total releases</p>
-                <p className="font-display text-[28px] text-charcoal leading-none">{STATS.totalReleases}</p>
-              </div>
-              <div className="px-5 py-4">
-                <p className="font-ui text-[11px] text-text-muted uppercase tracking-wider mb-1">Major features</p>
-                <p className="font-display text-[28px] text-charcoal leading-none">{STATS.majorFeatures}</p>
-              </div>
-              <div className="px-5 py-4">
-                <p className="font-ui text-[11px] text-text-muted uppercase tracking-wider mb-1">Fixes &amp; security</p>
-                <p className="font-display text-[28px] text-charcoal leading-none">{STATS.fixes}</p>
-              </div>
-              <div className="px-5 py-4">
-                <p className="font-ui text-[11px] text-text-muted uppercase tracking-wider mb-1">Days in dev</p>
-                <p className="font-display text-[28px] text-charcoal leading-none">{STATS.daysInDev}</p>
-              </div>
+
+            {/* Right: snapshot stats */}
+            <div className="grid grid-cols-2 gap-px bg-[#2b2b29] border border-[#2b2b29] rounded-2xl overflow-hidden shrink-0 lg:min-w-85">
+              {[
+                { label: "Total Releases",     value: STATS.totalReleases },
+                { label: "Major Features",      value: STATS.majorFeatures },
+                { label: "Fixes & Security",    value: STATS.fixes },
+                { label: "Days in Development", value: STATS.daysInDev },
+              ].map((s) => (
+                <div key={s.label} className="cl-stat bg-charcoal px-6 py-5 opacity-0">
+                  <p className="font-display text-[40px] text-parchment leading-none">{s.value}</p>
+                  <p className="font-ui text-[10px] text-stone uppercase tracking-[0.12em] mt-2">{s.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* ══════════════ CONTROLS ══════════════ */}
-        <div className="cl-controls bg-white border border-border-subtle rounded-2xl shadow-sm p-5 mb-10 opacity-0">
-          {/* Search */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <div className="relative flex-1">
-              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      {/* ═══════════════════════════════════════════════════════
+          FILTER BAR
+      ═══════════════════════════════════════════════════════ */}
+      <div className="w-full bg-white border-b border-border-subtle">
+        <div className="w-full max-w-360 mx-auto px-6 lg:px-12">
+          <div className="cl-controls py-4 flex flex-col sm:flex-row sm:items-center gap-3 opacity-0">
+
+            {/* Search */}
+            <div className="relative sm:max-w-xs w-full">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <circle cx="11" cy="11" r="8" />
                 <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
               </svg>
@@ -372,103 +387,154 @@ export default function ChangelogClient() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search releases, versions, or changes"
-                className="w-full pl-10 pr-4 py-2.5 bg-parchment border border-border-subtle rounded-xl font-body text-[14px] text-charcoal placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all"
+                placeholder="Search releases…"
+                className="w-full pl-9 pr-3 py-2 bg-parchment border border-border-subtle rounded-lg font-ui text-[13px] text-charcoal placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all"
               />
             </div>
-          </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-ui text-[11px] tracking-[0.08em] uppercase text-text-muted font-semibold mr-1 flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" d="M3 4h18M7 9h10M10 14h4" />
-              </svg>
-              Quick Filters
-            </span>
-            {FILTER_OPTIONS.map((opt) => (
+            {/* Type filters */}
+            <div className="flex flex-wrap gap-1.5">
+              {FILTER_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setTypeFilter(opt.value)}
+                  className={`px-3 py-1.5 rounded-lg font-ui text-[12px] font-medium transition-all cursor-pointer ${
+                    typeFilter === opt.value
+                      ? "bg-charcoal text-parchment"
+                      : "bg-parchment text-text-secondary border border-border-subtle hover:border-charcoal/30"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="hidden sm:block w-px h-5 bg-border-subtle mx-1" />
+
+            {/* Impact filters */}
+            <div className="flex gap-1.5">
+              {IMPACT_FILTER_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setImpactFilter(opt.value)}
+                  className={`px-3 py-1.5 rounded-lg font-ui text-[12px] font-medium transition-all cursor-pointer ${
+                    impactFilter === opt.value
+                      ? "bg-charcoal text-parchment"
+                      : "bg-parchment text-text-secondary border border-border-subtle hover:border-charcoal/30"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {(typeFilter !== "all" || impactFilter !== "all" || search) && (
               <button
-                key={opt.value}
-                onClick={() => setTypeFilter(opt.value)}
-                className={`px-3 py-1.5 rounded-lg font-ui text-[12px] font-medium transition-all duration-200 cursor-pointer ${
-                  typeFilter === opt.value
-                    ? "bg-charcoal text-parchment shadow-sm"
-                    : "bg-parchment text-text-secondary border border-border-subtle hover:border-charcoal/30"
-                }`}
+                onClick={() => { setTypeFilter("all"); setImpactFilter("all"); setSearch(""); }}
+                className="ml-auto font-ui text-[12px] text-terracotta hover:underline cursor-pointer whitespace-nowrap"
               >
-                {opt.label}
+                Clear filters
               </button>
-            ))}
-
-            <div className="w-px h-5 bg-border-subtle mx-1 hidden sm:block" />
-
-            {IMPACT_FILTER_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setImpactFilter(opt.value)}
-                className={`px-3 py-1.5 rounded-lg font-ui text-[12px] font-medium transition-all duration-200 cursor-pointer ${
-                  impactFilter === opt.value
-                    ? "bg-charcoal text-parchment shadow-sm"
-                    : "bg-parchment text-text-secondary border border-border-subtle hover:border-charcoal/30"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+            )}
           </div>
         </div>
+      </div>
 
-        {/* ══════════════ RELEASE TIMELINE ══════════════ */}
-        <div className="relative">
-          {/* Timeline Line */}
-          <div className="absolute left-[18px] top-0 bottom-0 w-px bg-border-subtle hidden lg:block" />
+      {/* ═══════════════════════════════════════════════════════
+          BODY: sticky nav + release cards
+      ═══════════════════════════════════════════════════════ */}
+      <div className="bg-parchment pb-28">
+        <div className="w-full max-w-360 mx-auto px-6 lg:px-12 pt-10">
+          <div className="flex gap-8 lg:gap-12">
 
-          <div className="flex flex-col gap-6">
-            {filteredReleases.length === 0 && (
-              <div className="text-center py-16">
-                <p className="font-ui text-[15px] text-text-muted">No releases match your filters.</p>
-                <button
-                  onClick={() => { setTypeFilter("all"); setImpactFilter("all"); setSearch(""); }}
-                  className="mt-3 font-ui text-[14px] text-terracotta hover:underline cursor-pointer"
-                >
-                  Clear all filters
-                </button>
+            {/* ── Left sticky version navigator (desktop only) ── */}
+            <div className="hidden lg:block w-52 shrink-0">
+              <div className="sticky top-6">
+                <p className="font-ui text-[10px] tracking-[0.15em] uppercase text-text-muted font-semibold mb-3">
+                  Versions
+                </p>
+                <div className="flex flex-col gap-0.5">
+                  {filteredReleases.map((r) => (
+                    <button
+                      key={r.version}
+                      onClick={() =>
+                        document.getElementById(`release-${r.version}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                      }
+                      className={`group flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left w-full transition-all duration-200 ${
+                        activeVersion === r.version ? "bg-charcoal" : "hover:bg-sand"
+                      }`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full shrink-0 ${
+                          r.impact === "major" ? "bg-terracotta" :
+                          r.impact === "minor" ? "bg-warm-gold" : "bg-stone"
+                        }`}
+                      />
+                      <span
+                        className={`font-mono text-[12px] font-bold ${
+                          activeVersion === r.version ? "text-parchment" : "text-charcoal"
+                        }`}
+                      >
+                        v{r.version}
+                      </span>
+                      <span
+                        className={`ml-auto font-ui text-[9px] uppercase tracking-wide ${
+                          activeVersion === r.version ? "text-stone" : "text-text-muted"
+                        }`}
+                      >
+                        {r.impact}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
+            </div>
 
-            {filteredReleases.map((release) => {
-              const impactStyle = IMPACT_STYLES[release.impact];
-              const totalChanges = release.changes.length;
-              const filteredChanges =
-                typeFilter === "all"
-                  ? release.changes
-                  : release.changes.filter((c) => c.type === typeFilter);
+            {/* ── Release cards ── */}
+            <div className="flex-1 flex flex-col gap-5 min-w-0">
 
-              return (
-                <div key={release.version} className="release-card flex gap-6 opacity-0">
+              {filteredReleases.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="font-ui text-[15px] text-text-muted mb-3">No releases match your filters.</p>
+                  <button
+                    onClick={() => { setTypeFilter("all"); setImpactFilter("all"); setSearch(""); }}
+                    className="font-ui text-[14px] text-terracotta hover:underline cursor-pointer"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              )}
 
-                  {/* Timeline Dot (desktop only) */}
-                  <div className="hidden lg:flex flex-col items-center shrink-0 pt-7">
-                    <div className="w-[9px] h-[9px] rounded-full bg-charcoal border-2 border-parchment ring-1 ring-border-subtle z-10" />
-                  </div>
+              {filteredReleases.map((release) => {
+                const impactStyle = IMPACT_STYLES[release.impact];
+                const filteredChanges =
+                  typeFilter === "all"
+                    ? release.changes
+                    : release.changes.filter((c) => c.type === typeFilter);
 
-                  {/* Card */}
-                  <div className="flex-1 bg-white border border-border-subtle rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                const accentBorder =
+                  release.impact === "major" ? "border-l-terracotta" :
+                  release.impact === "minor" ? "border-l-warm-gold"  : "border-l-stone";
 
-                    {/* Card Header */}
-                    <div className="p-6 lg:p-8 pb-0">
-                      <div className="flex flex-wrap items-center gap-2.5 mb-4">
-                        {/* Version */}
-                        <span className="font-mono text-[12px] font-bold text-charcoal bg-cream px-2.5 py-1 rounded-lg border border-border-subtle">
-                          {release.version}
-                        </span>
+                return (
+                  <div
+                    key={release.version}
+                    id={`release-${release.version}`}
+                    data-version={release.version}
+                    className={`release-card opacity-0 bg-white rounded-2xl shadow-sm overflow-hidden border border-border-subtle border-l-4 ${accentBorder}`}
+                  >
+                    <div className="p-6 lg:p-8">
 
-                        {/* Impact Badge */}
-                        <span className={`font-ui text-[10px] tracking-[0.08em] uppercase font-bold px-2.5 py-1 rounded-lg ${impactStyle.bg} ${impactStyle.text}`}>
+                      {/* Meta row */}
+                      <div className="flex flex-wrap items-center gap-2.5 mb-5">
+                        <code className="font-mono text-[13px] font-bold text-charcoal bg-sand px-3 py-1 rounded-lg border border-border-subtle">
+                          v{release.version}
+                        </code>
+                        <span
+                          className={`font-ui text-[10px] tracking-[0.08em] uppercase font-bold px-2.5 py-1 rounded-lg ${impactStyle.bg} ${impactStyle.text}`}
+                        >
                           {impactStyle.label}
                         </span>
-
-                        {/* Date */}
                         <span className="font-ui text-[12px] text-text-muted flex items-center gap-1">
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -476,85 +542,81 @@ export default function ChangelogClient() {
                           </svg>
                           {release.date}
                         </span>
-
-                        {/* Spacer → right-aligned items */}
                         <div className="flex-1" />
-
-                        {/* Change count */}
-                        <span className="font-ui text-[11px] text-text-muted flex items-center gap-1 border border-border-subtle rounded-lg px-2.5 py-1">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" d="M12 3v18M3 12h18" strokeWidth={1.5} />
-                          </svg>
-                          {totalChanges} changes
+                        <span className="font-mono text-[11px] text-text-muted border border-border-subtle rounded-lg px-2.5 py-1">
+                          {release.changes.length} changes
                         </span>
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-display text-[22px] lg:text-[26px] tracking-tight text-charcoal leading-snug mb-3">
+                      <h2 className="font-display text-[22px] lg:text-[27px] text-charcoal tracking-tight leading-snug mb-3">
                         {release.title}
-                      </h3>
+                      </h2>
 
                       {/* Summary */}
                       <p className="font-body text-[15px] text-text-secondary leading-[1.65] max-w-3xl">
                         {release.summary}
                       </p>
-                    </div>
 
-                    {/* Divider */}
-                    <div className="mx-6 lg:mx-8 my-5 h-px bg-border-subtle" />
-
-                    {/* Changes List */}
-                    <div className="px-6 lg:px-8 pb-6 lg:pb-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {filteredChanges.map((change, ci) => {
-                          const typeStyle = TYPE_STYLES[change.type];
-                          return (
-                            <div
-                              key={ci}
-                              className="group bg-parchment/60 border border-border-subtle rounded-xl p-4 hover:bg-cream/60 transition-colors duration-200"
-                            >
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className={`font-ui text-[10px] tracking-[0.08em] uppercase font-bold px-2 py-0.5 rounded-md ${typeStyle.bg} ${typeStyle.text}`}>
-                                  {typeStyle.label}
-                                </span>
-                              </div>
-                              <h4 className="font-ui font-semibold text-[14px] text-charcoal mb-1.5 leading-snug">
-                                {change.title}
-                              </h4>
-                              <p className="font-body text-[13px] text-text-secondary leading-[1.6]">
-                                {change.description}
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      {/* Changes list */}
+                      {filteredChanges.length > 0 && (
+                        <>
+                          <div className="my-5 h-px bg-border-subtle" />
+                          <div className="flex flex-col gap-4">
+                            {filteredChanges.map((change, ci) => {
+                              const ts = TYPE_STYLES[change.type];
+                              return (
+                                <div key={ci} className="flex gap-3">
+                                  <div className="shrink-0 pt-0.5">
+                                    <span
+                                      className={`inline-block font-ui text-[9px] tracking-widest uppercase font-bold px-2 py-0.5 rounded-md ${ts.bg} ${ts.text}`}
+                                    >
+                                      {ts.label}
+                                    </span>
+                                  </div>
+                                  <div className="min-w-0">
+                                    <h4 className="font-ui font-semibold text-[14px] text-charcoal mb-1 leading-snug">
+                                      {change.title}
+                                    </h4>
+                                    <p className="font-body text-[13px] text-text-secondary leading-[1.6]">
+                                      {change.description}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* ══════════════ FOOTER CTA ══════════════ */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4">
-            <Link
-              href="/dev-docs"
-              className="font-ui text-[14px] font-medium text-charcoal flex items-center gap-2 hover:text-terracotta transition-colors group"
-            >
-              View Protocol Architecture
-              <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </Link>
-            <span className="hidden sm:block text-text-muted">·</span>
-            <Link
-              href="/blog"
-              className="font-ui text-[14px] font-medium text-charcoal flex items-center gap-2 hover:text-terracotta transition-colors group"
-            >
-              Read the Blog
-              <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </Link>
-          </div>
+      {/* ═══════════════════════════════════════════════════════
+          FOOTER CTA
+      ═══════════════════════════════════════════════════════ */}
+      <div className="bg-parchment border-t border-border-subtle py-12 text-center">
+        <div className="inline-flex flex-col sm:flex-row items-center gap-4">
+          <Link
+            href="/dev-docs"
+            className="font-ui text-[14px] font-medium text-charcoal flex items-center gap-2 hover:text-terracotta transition-colors group"
+          >
+            View Protocol Architecture
+            <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </Link>
+          <span className="hidden sm:block text-text-muted">·</span>
+          <Link
+            href="/blog"
+            className="font-ui text-[14px] font-medium text-charcoal flex items-center gap-2 hover:text-terracotta transition-colors group"
+          >
+            Read the Blog
+            <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </Link>
         </div>
       </div>
     </div>
