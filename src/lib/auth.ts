@@ -44,6 +44,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             credentials.message as string
           );
 
+          // Domain verification — prevent relay/phishing attacks
+          // The SIWE message domain must match the expected application host
+          const expectedHost = process.env.NEXTAUTH_URL
+            ? new URL(process.env.NEXTAUTH_URL).host
+            : "localhost:3000";
+          const allowedDomains = [expectedHost, "localhost:3000", "vren.vercel.app"];
+
+          if (!allowedDomains.includes(siweMessage.domain)) {
+            console.error(
+              `[SIWE] Domain mismatch: expected one of [${allowedDomains.join(", ")}], got "${siweMessage.domain}"`
+            );
+            return null;
+          }
+
           // Verify the SIWE signature
           const result = await siweMessage.verify({
             signature: credentials.signature as string,

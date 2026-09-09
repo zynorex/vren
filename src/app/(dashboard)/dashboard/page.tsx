@@ -19,9 +19,9 @@ export default async function DashboardOverviewPage() {
   const d30 = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
   const d60 = new Date(now.getTime() - 60 * 24 * 3600 * 1000);
 
-  const [currentSubs, prevSubs, churned, recentTxns, txns30d, prevTxns30d] =
+  const [currentSubs, prevSubs, churned, prevChurned, recentTxns, txns30d, prevTxns30d, revenueTimeseries] =
     appIds.length === 0
-      ? [[], [], 0, [], [], []]
+      ? [[], [], 0, 0, [], [], [], []]
       : await Promise.all([
           db.subscriber.findMany({
             where: { appId: { in: appIds }, expiry: { gt: now } },
@@ -33,6 +33,10 @@ export default async function DashboardOverviewPage() {
           }),
           db.subscriber.count({
             where: { appId: { in: appIds }, active: false, updatedAt: { gte: d30 } },
+          }),
+          // Previous period churn (d60 to d30) for computing real churn delta
+          db.subscriber.count({
+            where: { appId: { in: appIds }, active: false, updatedAt: { gte: d60, lt: d30 } },
           }),
           db.transaction.findMany({
             where: { appId: { in: appIds } },
@@ -48,6 +52,16 @@ export default async function DashboardOverviewPage() {
             where: { appId: { in: appIds }, createdAt: { gte: d60, lt: d30 } },
             select: { usdcAmount: true },
           }),
+          // Monthly revenue timeseries — last 12 months of transactions
+          db.transaction.findMany({
+            where: {
+              appId: { in: appIds },
+              createdAt: { gte: new Date(now.getTime() - 365 * 24 * 3600 * 1000) },
+              usdcAmount: { not: null },
+            },
+            select: { usdcAmount: true, createdAt: true },
+            orderBy: { createdAt: "asc" },
+          }),
         ]);
 
   const currentMRR = calcMRR((currentSubs as { plan: { price: string; duration: number } }[]).map((s) => s.plan));
@@ -59,13 +73,31 @@ export default async function DashboardOverviewPage() {
   const subGrowth = growthRate(activeCount, prevCount);
 
   const churnedCount = churned as number;
+  const prevChurnedCount = prevChurned as number;
   const churnRate = activeCount + churnedCount > 0 ? (churnedCount / (activeCount + churnedCount)) * 100 : 0;
+  const prevChurnRate = prevCount + prevChurnedCount > 0 ? (prevChurnedCount / (prevCount + prevChurnedCount)) * 100 : 0;
+  const churnDelta = churnRate - prevChurnRate;
 
   const sumVol = (txs: { usdcAmount: string | null }[]) =>
     txs.reduce((s, t) => s + (t.usdcAmount ? Number(t.usdcAmount) / 1_000_000 : 0), 0);
   const vol30d = sumVol(txns30d as { usdcAmount: string | null }[]);
   const prevVol30d = sumVol(prevTxns30d as { usdcAmount: string | null }[]);
   const volGrowth = growthRate(vol30d, prevVol30d);
+
+  // ── Aggregate monthly revenue timeseries for chart ─────────────
+  const monthlyRevenue: { label: string; value: number }[] = [];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  // Build last 6 months of buckets
+  for (let i = 5; i >= 0; i--) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    const monthTxns = (revenueTimeseries as { usdcAmount: string | null; createdAt: Date }[]).filter(
+      (t) => t.createdAt >= monthDate && t.createdAt < monthEnd
+    );
+    const total = monthTxns.reduce((s, t) => s + (t.usdcAmount ? Number(t.usdcAmount) / 1_000_000 : 0), 0);
+    monthlyRevenue.push({ label: monthNames[monthDate.getMonth()]!, value: total });
+  }
+  const maxRevenue = Math.max(...monthlyRevenue.map((m) => m.value), 1); // avoid divide by zero
 
   const mrrFormatted = formatUSD(currentMRR, 0);
   const volFormatted = formatUSD(vol30d, 0);
@@ -134,8 +166,8 @@ export default async function DashboardOverviewPage() {
             <span className="font-display text-[32px] text-charcoal font-medium leading-none">{churnRate.toFixed(1)}%</span>
           </div>
           <div className="flex items-center gap-1.5 font-ui text-[13px]">
-            <ArrowDownRight className="w-3.5 h-3.5 text-terracotta" />
-            <span className="text-terracotta font-medium">0.3%</span>
+            {churnDelta <= 0 ? <ArrowDownRight className="w-3.5 h-3.5 text-[#28C840]" /> : <ArrowUpRight className="w-3.5 h-3.5 text-terracotta" />}
+            <span className={churnDelta <= 0 ? "text-[#28C840] font-medium" : "text-terracotta font-medium"}>{formatDelta(Math.abs(churnDelta))}</span>
             <span className="text-text-muted">vs last month</span>
           </div>
         </div>
@@ -174,41 +206,44 @@ export default async function DashboardOverviewPage() {
             </div>
           </div>
           
-          {/* Static Chart Mockup since Recharts isn't installed */}
+          {/* Real DB-Driven Revenue Chart */}
           <div className="flex-1 min-h-60 flex items-end gap-2 pt-4 relative">
             {/* Y Axis Guides */}
             <div className="absolute inset-0 flex flex-col justify-between pb-8 z-0">
-               {[...Array(5)].map((_, i) => (
-                 <div key={i} className="w-full border-b border-border-subtle/50 h-0 flex items-center">
-                    <span className="font-mono text-[10px] text-text-muted absolute -left-1 -translate-x-full">
-                      ${(15 - i * 3)}k
-                    </span>
-                 </div>
-               ))}
+               {[...Array(5)].map((_, i) => {
+                 const yVal = Math.round(maxRevenue * (1 - i / 4));
+                 return (
+                   <div key={i} className="w-full border-b border-border-subtle/50 h-0 flex items-center">
+                      <span className="font-mono text-[10px] text-text-muted absolute -left-1 -translate-x-full">
+                        ${yVal >= 1000 ? `${(yVal / 1000).toFixed(1)}k` : yVal}
+                      </span>
+                   </div>
+                 );
+               })}
             </div>
 
-            {/* Bars */}
-            {[40, 45, 35, 50, 60, 55, 75, 80, 95, 85, 100, 110].map((height, i) => (
-              <div key={i} className="flex-1 flex flex-col justify-end items-center group z-10 h-full pb-8">
-                <div 
-                  className="w-full max-w-8 bg-charcoal rounded-t-[4px] opacity-80 group-hover:opacity-100 group-hover:bg-terracotta transition-colors relative"
-                  style={{ height: `${height}%` }}
-                >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-charcoal text-parchment font-mono text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                    ${Math.floor(height * 120)}
+            {/* Bars — driven by real monthly revenue data */}
+            {monthlyRevenue.map((month, i) => {
+              const heightPct = maxRevenue > 0 ? (month.value / maxRevenue) * 100 : 0;
+              return (
+                <div key={i} className="flex-1 flex flex-col justify-end items-center group z-10 h-full pb-8">
+                  <div 
+                    className="w-full max-w-8 bg-charcoal rounded-t-[4px] opacity-80 group-hover:opacity-100 group-hover:bg-terracotta transition-colors relative"
+                    style={{ height: `${Math.max(heightPct, 2)}%` }}
+                  >
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-charcoal text-parchment font-mono text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {formatUSD(month.value, 0)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* X Axis labels */}
             <div className="absolute bottom-0 left-0 right-0 h-8 flex justify-between items-center font-mono text-[10px] text-text-muted px-2">
-              <span>Jan</span>
-              <span>Feb</span>
-              <span>Mar</span>
-              <span>Apr</span>
-              <span>May</span>
-              <span>Jun</span>
+              {monthlyRevenue.map((m, i) => (
+                <span key={i}>{m.label}</span>
+              ))}
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/lib/api-key-auth";
 import { db } from "@/lib/db";
+import { v1RateLimiter } from "@/lib/rate-limit";
 
 /**
  * GET /api/v1/subscribers?appId=clx...&status=active|all&page=1&limit=50
@@ -10,6 +11,15 @@ export async function GET(request: NextRequest) {
   const auth = await authenticateApiKey(request);
   if (!auth.authenticated) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  // Rate limiting per API key
+  const rateLimit = v1RateLimiter.check(auth.keyId);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please retry after the reset window." },
+      { status: 429, headers: { ...v1RateLimiter.headers(rateLimit), "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) } }
+    );
   }
 
   const url = new URL(request.url);

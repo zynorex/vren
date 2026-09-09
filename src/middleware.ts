@@ -46,8 +46,13 @@ export function middleware(req: NextRequest) {
   }
 
   // ── Protected API routes ───────────────────────────────────────
+  // Note: /api/v1/* routes use API key auth (x-api-key header), not session cookies.
+  // Note: /api/webhooks/* routes use HMAC signature verification.
+  // Both are excluded from session-based protection.
   const isProtectedApi =
-    pathname.startsWith("/api/apps") || pathname.startsWith("/api/keys");
+    (pathname.startsWith("/api/apps") || pathname.startsWith("/api/keys")) &&
+    !pathname.startsWith("/api/v1/") &&
+    !pathname.startsWith("/api/webhooks/");
 
   if (!isAuthenticated && isProtectedApi) {
     return NextResponse.json(

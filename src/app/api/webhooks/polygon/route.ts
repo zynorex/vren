@@ -15,7 +15,12 @@ function verifySignature(payload: string, signature: string): boolean {
   const hmac = crypto.createHmac("sha256", WEBHOOK_SECRET);
   const expectedSignature = hmac.update(payload).digest("hex");
   
-  return expectedSignature === signature;
+  // Constant-time comparison to prevent timing side-channel attacks
+  if (expectedSignature.length !== signature.length) return false;
+  return crypto.timingSafeEqual(
+    Buffer.from(expectedSignature, "hex"),
+    Buffer.from(signature, "hex")
+  );
 }
 
 export async function POST(req: Request) {
@@ -209,6 +214,78 @@ export async function POST(req: Request) {
       });
 
       return NextResponse.json({ message: "Plan created successfully" });
+    }
+
+    // ── Renewed (re-subscription / extension) ──────────────────────
+    // This fires when a user renews an existing subscription.
+    // Uses the same payload shape as Subscribed but we treat it as a renewal.
+    if (eventType === "Renewed") {
+      const { appId, subscriber, planId, tokenId, expiry } = data;
+
+      const app = await db.app.findUnique({
+        where: { contractId: appId },
+        include: { plans: true },
+      });
+
+      if (!app) {
+        throw new Error(`App with contractId ${appId} not found in database`);
+      }
+
+      const plan = app.plans.find((p: { onchainIdx: number; id: string }) => p.onchainIdx === Number(planId));
+      if (!plan) {
+        throw new Error(`Plan ID ${planId} not found for App ${appId}`);
+      }
+
+      const expiryDate = new Date(Number(expiry) * 1000);
+
+      await db.$transaction(async (prisma: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
+        // Update the subscriber's expiry and re-activate
+        await prisma.subscriber.upsert({
+          where: {
+            appId_wallet: {
+              appId: app.id,
+              wallet: subscriber.toLowerCase(),
+            },
+          },
+          update: {
+            planId: plan.id,
+            tokenId: tokenId ? String(tokenId) : null,
+            expiry: expiryDate,
+            active: true,
+          },
+          create: {
+            wallet: subscriber.toLowerCase(),
+            appId: app.id,
+            planId: plan.id,
+            tokenId: tokenId ? String(tokenId) : null,
+            expiry: expiryDate,
+            active: true,
+          },
+        });
+
+        // Record the idempotency event
+        await prisma.webhookEvent.create({
+          data: {
+            transactionHash,
+            eventType,
+          },
+        });
+
+        // Record the renewal transaction for dashboard display
+        await prisma.transaction.create({
+          data: {
+            transactionHash,
+            type: "renewal",
+            usdcAmount: plan.price,
+            wallet: subscriber.toLowerCase(),
+            tokenId: tokenId ? String(tokenId) : null,
+            appId: app.id,
+            planId: plan.id,
+          },
+        });
+      });
+
+      return NextResponse.json({ message: "Renewal processed successfully" });
     }
 
     // Unrecognized event — acknowledge but don't process
